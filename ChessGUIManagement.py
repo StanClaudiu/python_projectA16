@@ -18,6 +18,7 @@ class GUIChessGame:
         for piece in pieces:
             self.image_piece[piece] = pygame.image.load(
                 "ChessPieces/" + piece + ".png").convert_alpha()
+            self.image_piece[piece] = pygame.transform.scale(self.image_piece[piece], (self.l_SQUARE, self.h_SQUARE))
         pygame.display.set_caption('Chess Game')
         self.clock = pygame.time.Clock()
 
@@ -28,6 +29,7 @@ class GUIChessGame:
                     pygame.quit()
                     exit()
             self.draw_table()
+            self.draw_pieces()
             pygame.display.update()
 
     def draw_table(self):
@@ -38,9 +40,14 @@ class GUIChessGame:
                     square_table.fill('white')
                 else:
                     square_table.fill('gray')
-                self.screen.blit(
-                    square_table, (row*self.l_SQUARE, col*self.h_SQUARE))
-
+                self.screen.blit(square_table, (row*self.l_SQUARE, col*self.h_SQUARE))
+    
+    def draw_pieces(self):
+        for row in range(0,8):
+            for col in range(0,8):
+                if self.table.board[col][row] != "--":
+                    self.screen.blit(self.image_piece[self.table.board[col][row]],(row * self.l_SQUARE, col * self.h_SQUARE))
+                    
 
 def main():
     print("Here we are going to try to make this bullshit")
