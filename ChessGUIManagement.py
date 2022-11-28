@@ -18,19 +18,29 @@ class GUIChessGame:
         for piece in pieces:
             self.image_piece[piece] = pygame.image.load(
                 "ChessPieces/" + piece + ".png").convert_alpha()
-            self.image_piece[piece] = pygame.transform.scale(self.image_piece[piece], (self.l_SQUARE, self.h_SQUARE))
+            self.image_piece[piece] = pygame.transform.smoothscale(self.image_piece[piece], (self.l_SQUARE, self.h_SQUARE))
         pygame.display.set_caption('Chess Game')
         self.clock = pygame.time.Clock()
 
     def start_game(self):
+        first_time = True
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-            self.draw_table()
-            self.draw_pieces()
-            pygame.display.update()
+            if not first_time :
+                locked = True
+                while locked : 
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            self.handle_click(event)
+                            locked = False
+            else:
+                self.draw_table()
+                self.draw_pieces()
+                pygame.display.update()
+                first_time = False
+           
 
     def draw_table(self):
         for row in range(0, 8):
@@ -47,7 +57,41 @@ class GUIChessGame:
             for col in range(0,8):
                 if self.table.board[col][row] != "--":
                     self.screen.blit(self.image_piece[self.table.board[col][row]],(row * self.l_SQUARE, col * self.h_SQUARE))
-                    
+
+    def handle_click(self,event):
+        print("pressed Down")
+        f_row,f_col = self.get_click_coords(event)
+        if self.validate_first_click((f_row,f_col)): # I can make the second choice if the first one was good
+            locked = True
+            while locked :
+                for event_second in pygame.event.get():
+                    if event_second.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                    if event_second.type == pygame.MOUSEBUTTONDOWN:
+                        print("Again pressed Down")
+                        s_row,s_col = self.get_click_coords(event_second)
+                        self.validate_second_click((s_row,s_col)) # modify the table
+                        locked = False
+    
+    def validate_first_click(self,coords):
+        f_row,f_col = coords
+        print("We have the Square : (",f_row,",",f_col,")")
+        if self.table.valid_first_selection((f_row,f_col)):
+            return True
+    
+    # if is good modify the table, otherwise no
+    def validate_second_click(self,coords):
+        f_row,f_col = coords
+        print("We have the Square : (",f_row,",",f_col,")")
+        self.table.valid_second_selection((f_row,f_col))
+
+    def get_click_coords(self,event):
+        return event.pos[0] // self.l_SQUARE,event.pos[1] // self.h_SQUARE
+
+
+
+            
 
 def main():
     print("Here we are going to try to make this bullshit")
@@ -57,3 +101,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    
