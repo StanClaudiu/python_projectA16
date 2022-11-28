@@ -12,6 +12,7 @@ class backgroundBoard:
         self.turn = 0 # meaning first one, easy to to 1-self.turn
     stack_all_transformations = list()
 
+
     def valid_first_selection(self,pos_tuple):
         #here we are going to validate the first click if is alright, at the moment returns true
         (f_row,f_col) = pos_tuple
@@ -20,10 +21,16 @@ class backgroundBoard:
         print(valid_click)
         return valid_click
     
-    def valid_second_selection(self,pos_tuple):
+    def valid_second_selection(self,f_pos_tuple,s_pos_tuple):
         #here we are going to validate the second click if is alright, at the moment returns true
-        (s_row,s_col) = pos_tuple
+        s_row,s_col = s_pos_tuple
+        f_row,f_col = f_pos_tuple
         valid_click = True
+
+        if valid_click:
+            print("I did smth")
+            self.board[s_row][s_col] = self.board[f_row][f_col]
+            self.board[f_row][f_col] = "--"
 
     def verify_good_turn_color(self,pos_tuple):
         row,col = pos_tuple

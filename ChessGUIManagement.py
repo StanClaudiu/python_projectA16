@@ -35,11 +35,12 @@ class GUIChessGame:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             self.handle_click(event)
                             locked = False
-            else:
-                self.draw_table()
-                self.draw_pieces()
-                pygame.display.update()
-                first_time = False
+            
+            self.draw_table()
+            self.draw_pieces()
+            print("Ajung sa redesenez")
+            pygame.display.update()
+            first_time = False
            
 
     def draw_table(self):
@@ -71,7 +72,7 @@ class GUIChessGame:
                     if event_second.type == pygame.MOUSEBUTTONDOWN:
                         print("THE SECOND CLICK")
                         s_row,s_col = self.get_click_coords(event_second)
-                        self.validate_second_click((s_row,s_col)) # modify the table
+                        self.validate_second_click((f_row,f_col),(s_row,s_col)) # modify the table
                         locked = False
     
     def validate_first_click(self,coords):
@@ -81,10 +82,10 @@ class GUIChessGame:
             return True
     
     # if is good modify the table, otherwise no
-    def validate_second_click(self,coords):
+    def validate_second_click(self,coords,coords_2):
         f_row,f_col = coords
         print("We have the Square : (",f_row,",",f_col,")")
-        self.table.valid_second_selection((f_row,f_col))
+        self.table.valid_second_selection((f_row,f_col),coords_2)
 
     def get_click_coords(self,event):
         return event.pos[1] // self.l_SQUARE,event.pos[0] // self.h_SQUARE
