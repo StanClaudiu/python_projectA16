@@ -53,13 +53,13 @@ class GUIChessGame:
                 self.screen.blit(square_table, (row*self.l_SQUARE, col*self.h_SQUARE))
     
     def draw_pieces(self):
-        for row in range(0,8):
-            for col in range(0,8):
-                if self.table.board[col][row] != "--":
-                    self.screen.blit(self.image_piece[self.table.board[col][row]],(row * self.l_SQUARE, col * self.h_SQUARE))
+        for col in range(0,8):
+            for row in range(0,8):
+                if self.table.board[row][col] != "--":
+                    self.screen.blit(self.image_piece[self.table.board[row][col]],(col * self.l_SQUARE, row * self.h_SQUARE))
 
     def handle_click(self,event):
-        print("pressed Down")
+        print("THE FIRST CLICK : ")
         f_row,f_col = self.get_click_coords(event)
         if self.validate_first_click((f_row,f_col)): # I can make the second choice if the first one was good
             locked = True
@@ -69,7 +69,7 @@ class GUIChessGame:
                             pygame.quit()
                             exit()
                     if event_second.type == pygame.MOUSEBUTTONDOWN:
-                        print("Again pressed Down")
+                        print("THE SECOND CLICK")
                         s_row,s_col = self.get_click_coords(event_second)
                         self.validate_second_click((s_row,s_col)) # modify the table
                         locked = False
@@ -87,7 +87,7 @@ class GUIChessGame:
         self.table.valid_second_selection((f_row,f_col))
 
     def get_click_coords(self,event):
-        return event.pos[0] // self.l_SQUARE,event.pos[1] // self.h_SQUARE
+        return event.pos[1] // self.l_SQUARE,event.pos[0] // self.h_SQUARE
 
 
 
