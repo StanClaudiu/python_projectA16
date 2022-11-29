@@ -170,6 +170,24 @@ class backgroundBoard:
                     if self.board[current_line][current_col][0] == who_stays:
                         self.possible_current_moves.append((current_line,current_col))
         return len(self.possible_current_moves)!=0
+    
+    def find_pos_basic_moves_horse(self,f_pos_tuple):
+        if self.turn == 0 :
+            who_moves = "w"
+            who_stays = "b"
+        else :
+            who_moves = "b"
+            who_stays = "w"
+        f_row,f_col = f_pos_tuple
+        moves_row = [-2,-1,1,2]
+        moves_col = [-2,-1,1,2]
+        d_row_col = [(d_row,d_col) for d_row in moves_row for d_col in moves_col if (abs(d_row) + abs(d_col)) == 3] # possible differntial
+        possible_row_col = [(f_row + d_r,f_col +d_c) for (d_r,d_c) in d_row_col if 7>=(f_row + d_r) >= 0 and 7>=(f_col +d_c) >=0]  #possible raw moves
+        possible_row_col = [(current_row,current_col) for (current_row,current_col) in possible_row_col if self.board[current_row][current_col] == "--" or self.board[current_row][current_col][0] == who_stays]
+        print(possible_row_col) 
+        self.possible_current_moves = possible_row_col
+        return len(possible_row_col)!=0
+
         
         
         
@@ -238,6 +256,7 @@ class backgroundBoard:
                     print("the moves : ",self.possible_current_moves)
             case "H":
                 print("Horse")
+                valid_moves_basic = self.find_pos_basic_moves_horse(f_pos_tuple)
         return valid_move
 
     def verify_good_turn_color(self,pos_tuple):
