@@ -1,7 +1,7 @@
 class backgroundBoard:
     def __init__(self):
         #pretty self explanatory I believe
-        self.possible_current_moves = []
+        self.possible_current_moves = [["wC","wH","wB","wK","wQ","wP"],["bC","bH","bB","bK","bQ","bP"]]
         self.board = [["wC","wH","wB","wK","wQ","wB","wH","wC"],
                       ["wP","wP","wP","wP","wP","wP","wP","wP"],
                       ["--","--","--","--","--","--","--","--"],
