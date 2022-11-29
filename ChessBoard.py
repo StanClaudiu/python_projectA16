@@ -4,6 +4,7 @@ class backgroundBoard:
         self.possible_basic_piece = [["wC", "wH", "wB", "wK", "wQ", "wP"], [
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
         self.possible_current_moves = []
+        self.chess_resulting_situations_for_me = []
         self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
                       ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -200,6 +201,23 @@ class backgroundBoard:
         self.possible_current_moves = possible_row_col
         return len(possible_row_col) != 0
 
+    def check_situation(self,f_pos_tuple):
+        f_row ,f_col = f_pos_tuple
+        back_up_table = self.board.copy()
+        back_up_selections = self.possible_current_moves.copy()
+        # we have a copy of them
+        for (tried_line,tried_column) in back_up_selections : # merg prin toate situatiile
+            self.board = back_up_table.copy()
+            self.board[tried_line][tried_column] = self.board[f_row][f_col]
+            self.board[f_row][f_col] = "--"
+            for line in range(0,8):
+                for column in range(0,8):
+                    if self.board[line][column] in self.possible_basic_piece[1-self.turn] # piesele inamicului
+                        print('Case')
+
+
+
+
     def valid_first_selection(self, pos_tuple):
         # here we are going to validate the first click if is alright, at the moment returns true
         self.possible_current_moves = []
@@ -208,7 +226,14 @@ class backgroundBoard:
         valid_click = self.verify_good_turn_color(pos_tuple)
         valid_click = valid_click and self.verify_possible_move(pos_tuple)
         print("Primul click este valid : ", valid_click)
-        return valid_click
+
+        #I will verify which cases are not good because they result in chess, I will still let the click so we can see it on the board
+        if not valid_click :
+            return valid_click
+        else :
+            # here I will verify the cases that result in check for me!
+
+            return valid_click
 
     def valid_second_selection(self, f_pos_tuple, s_pos_tuple):
         # here we are going to validate the second click if is alright, at the moment returns true
