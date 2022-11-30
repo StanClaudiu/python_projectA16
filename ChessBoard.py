@@ -201,7 +201,8 @@ class backgroundBoard:
 
     def find_special_moves(self, f_pos_tuple):
         # cases : king - castles , pioneer last pos, 2MovesPioneer
-        
+        pieces = self.possible_basic_piece[0] + self.possible_basic_piece[1]
+
         click_row,click_col = f_pos_tuple
         if self.board[click_row][click_col] not in ["wP","bP","wK","bK"]:
             return False
@@ -230,7 +231,7 @@ class backgroundBoard:
             case 'P':
                 possible_special_moves = False
                 if self.turn == 0 :
-                    if click_row == 1 :
+                    if click_row == 1 and self.board[click_row + 2][click_col] not in pieces:
                         print("2MovesPossibility")
                         move_2_pos_loc = (click_row + 2 , click_col)
                         self.possible_current_moves.append((move_2_pos_loc))
@@ -248,7 +249,7 @@ class backgroundBoard:
                         self.special_moves_list.append((move_enp_pos,"ENPASSANT"))
                         possible_special_moves = True
                 else:
-                    if click_row == 6 :
+                    if click_row == 6 and self.board[click_row - 2][click_col] not in pieces :
                         move_2_pos_loc = (click_row - 2 , click_col)
                         print("2MovesPossibility")
                         self.possible_current_moves.append((move_2_pos_loc))
