@@ -6,7 +6,8 @@ class backgroundBoard:
         self.possible_current_moves = []
         self.check_resulting_situations_for_me = []
         self.casteling = [[True,True],[True,True]]
-        self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
+        self.special_moves_list = []
+        self.board = [["wC", "--", "--", "wK", "--", "--", "--", "wC"],
                       ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -204,22 +205,30 @@ class backgroundBoard:
 
     def find_special_moves(self, f_pos_tuple):
         # cases : king - castles , pioneer last pos, 2MovesPioneer, Enpassant
+        
         click_row,click_col = f_pos_tuple
         if self.board[click_row][click_col] not in ["wP","bP","wK","bK"]:
             return False
         piece_name = self.board[click_row][click_col]
         match piece_name[1]:
             case 'K':
+                #!!!!WE HAVE TO VERIFY THAT THE King is not in check this time
                 print('Castling case try ')
                 left_castle,right_castle = self.casteling[self.turn]
                 if not left_castle and not right_castle : # we can't make any casteling
                     return False
                 if left_castle:
-                    king_pos = (click_row,(click_col + 0)//2)
-                    self.possible_current_moves.append(king_pos)
+                    if self.board[click_row][click_col - 1] not in self.possible_basic_piece[0] +self.possible_basic_piece[1]: # there's nobody between us
+                        king_pos = (click_row,(click_col + 0)//2)
+                        self.possible_current_moves.append(king_pos)
+                        self.special_moves_list.append((king_pos,"casteling-left"))
                 if right_castle:
-                    king_pos =  (click_row,(click_col + 7)//2)
-                    self.possible_current_moves.append(king_pos)
+                    if self.board[click_row][click_col + 1] not in self.possible_basic_piece[0] +self.possible_basic_piece[1] and \
+                       self.board[click_row][click_col + 2] not in self.possible_basic_piece[0] +self.possible_basic_piece[1] and \
+                       self.board[click_row][click_col + 3] not in self.possible_basic_piece[0] +self.possible_basic_piece[1]: # there's nobody between us
+                        king_pos =  (click_row,(click_col + 7)//2)
+                        self.possible_current_moves.append(king_pos)
+                        self.special_moves_list.append((king_pos,"casteling-right"))
                 if right_castle or left_castle:
                     return True
             case 'P':
@@ -246,6 +255,7 @@ class backgroundBoard:
     def valid_first_selection(self, pos_tuple):
         # here we are going to validate the first click if is alright, at the moment returns true
         self.possible_current_moves = []
+        self.special_moves_list = []
         (f_row, f_col) = pos_tuple
         valid_click = True  # we believe everything good
         valid_click = self.verify_good_turn_color(pos_tuple)
@@ -268,7 +278,34 @@ class backgroundBoard:
 
         # is the now pos good?, wihthout veryfing the chess condition
 
-        valid_click = (s_row, s_col) in self.possible_current_moves
+        valid_click = (s_row, s_col) in self.possible_current_moves # aici ar trebuii sa fie +
+        if not valid_click:
+            return # not a good choice
+
+        for tuple_special_move in self.special_moves_list:
+            name = tuple_special_move[1] # we have the name
+            row_move,col_move = tuple_special_move[0]
+            if row_move == s_row and col_move == s_col : 
+                king = self.board[f_row][f_col]
+                if name == "casteling-left":
+                    castle = self.board[row_move][0]
+                    self.board[row_move][col_move] = king
+                    self.board[f_row][f_col] = "--"
+                    self.board[row_move][0] = "--"
+                    self.board[row_move][col_move + 1] = castle
+                    self.casteling[self.turn] = [False,False] # no more casteling
+                elif name == "casteling-right":
+                    castle = self.board[row_move][7]
+                    self.board[row_move][col_move] = king
+                    self.board[f_row][f_col] = "--"
+                    self.board[row_move][7] = "--"
+                    self.board[row_move][col_move - 1] = castle
+                    self.casteling[self.turn] = [False,False] # no more casteling
+                    print()
+                
+                self.turn = 1 - self.turn
+                return
+        
 
         if valid_click:
             self.board[s_row][s_col] = self.board[f_row][f_col]
