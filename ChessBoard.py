@@ -4,7 +4,8 @@ class backgroundBoard:
         self.possible_basic_piece = [["wC", "wH", "wB", "wK", "wQ", "wP"], [
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
         self.possible_current_moves = []
-        self.chess_resulting_situations_for_me = []
+        self.check_resulting_situations_for_me = []
+        self.casteling = [[True,True],[True,True]]
         self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
                       ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -201,7 +202,29 @@ class backgroundBoard:
         self.possible_current_moves = possible_row_col
         return len(possible_row_col) != 0
 
-
+    def find_special_moves(self, f_pos_tuple):
+        # cases : king - castles , pioneer last pos, 2MovesPioneer, Enpassant
+        click_row,click_col = f_pos_tuple
+        if self.board[click_row][click_col] not in ["wP","bP","wK","bK"]:
+            return False
+        piece_name = self.board[click_row][click_col]
+        match piece_name[1]:
+            case 'K':
+                print('Castling case try ')
+                left_castle,right_castle = self.casteling[self.turn]
+                if not left_castle and not right_castle : # we can't make any casteling
+                    return False
+                if left_castle:
+                    king_pos = (click_row,(click_col + 0)//2)
+                    self.possible_current_moves.append(king_pos)
+                if right_castle:
+                    king_pos =  (click_row,(click_col + 7)//2)
+                    self.possible_current_moves.append(king_pos)
+                if right_castle or left_castle:
+                    return True
+            case 'P':
+                print('Pioneer case')
+        
 
     def check_situation(self,f_pos_tuple):
         f_row ,f_col = f_pos_tuple
@@ -266,6 +289,8 @@ class backgroundBoard:
             case "K":
                 print("King -------------- ")
                 valid_move = self.find_pos_basic_moves_king(f_pos_tuple)
+                valid_move_special =  self.find_special_moves(f_pos_tuple)
+                valid_move = valid_move_special or valid_move
                 if valid_move:
                     print("King can move : ", self.possible_current_moves)
             case "Q":
