@@ -127,36 +127,31 @@ class backgroundBoard:
             c_row += 1
         return len(self.possible_current_moves) != 0
 
-    def find_pos_basic_moves_pioneer(self, f_pos_tuple):
+    def find_pos_basic_moves_pioneer(self, f_pos_tuple): # has the enpassant case
         f_row, f_col = f_pos_tuple
-        if self.turn == 0:
-            who_moves = "w"
-            who_stays = "b"
-        else:
-            who_moves = "b"
-            who_stays = "w"
-
         # the white pioneer goes down
-        if who_moves == "w":
-            if f_row < 7:
+        if self.turn == 0:
+            if f_row < 6:
+                enemy_pieces = self.possible_basic_piece[1 - self.turn].copy()
                 if self.board[f_row + 1][f_col] == "--":  # pos is free
                     self.possible_current_moves.append((f_row+1, f_col))
                 # enemy can be taken right_bottom
-                if f_col < 7 and self.board[f_row + 1][f_col + 1] in self.possible_basic_piece[1 - self.turn]:
+                if f_col < 7 and self.board[f_row + 1][f_col + 1] in enemy_pieces:
                     self.possible_current_moves.append((f_row + 1, f_col + 1))
                 # enemy can be taken left_bottom
                 if f_col > 0 and self.board[f_row + 1][f_col - 1] in self.possible_basic_piece[1 - self.turn]:
                     self.possible_current_moves.append((f_row + 1, f_col - 1))
         else:
             # the black pionner goes up
-            if f_row > 0:
+            if f_row > 1:
+                enemy_pieces = self.possible_basic_piece[1 - self.turn].copy()
                 if self.board[f_row - 1][f_col] == "--":  # pos is free
                     self.possible_current_moves.append((f_row - 1, f_col))
                 # enemy can be taken right_bottom
-                if f_col < 7 and self.board[f_row - 1][f_col + 1] in self.possible_basic_piece[1 - self.turn]:
+                if f_col < 7 and self.board[f_row - 1][f_col + 1] in enemy_pieces:
                     self.possible_current_moves.append((f_row - 1, f_col + 1))
                 # enemy can be taken left_bottom
-                if f_col > 0 and self.board[f_row - 1][f_col - 1] in self.possible_basic_piece[1 - self.turn]:
+                if f_col > 0 and self.board[f_row - 1][f_col - 1] in enemy_pieces:
                     self.possible_current_moves.append((f_row - 1, f_col - 1))
 
         return len(self.board) != 0
@@ -205,7 +200,7 @@ class backgroundBoard:
         return len(possible_row_col) != 0
 
     def find_special_moves(self, f_pos_tuple):
-        # cases : king - castles , pioneer last pos, 2MovesPioneer, Enpassant
+        # cases : king - castles , pioneer last pos, 2MovesPioneer
         
         click_row,click_col = f_pos_tuple
         if self.board[click_row][click_col] not in ["wP","bP","wK","bK"]:
@@ -233,20 +228,44 @@ class backgroundBoard:
                 if right_castle or left_castle:
                     return True
             case 'P':
+                possible_special_moves = False
                 if self.turn == 0 :
                     if click_row == 1 :
                         print("2MovesPossibility")
                         move_2_pos_loc = (click_row + 2 , click_col)
                         self.possible_current_moves.append((move_2_pos_loc))
                         self.special_moves_list.append((move_2_pos_loc,"2MovesPossibility"))
-                        return True
+                        possible_special_moves = True
+                    #Enpassant case
+                    if click_col > 0 and self.board[click_row + 1][click_col - 1] == "bENPASSANT":
+                        move_enp_pos = (click_row + 1, click_col - 1)
+                        self.possible_current_moves.append((move_enp_pos))
+                        self.special_moves_list.append((move_enp_pos,"ENPASSANT"))
+                        possible_special_moves = True
+                    if click_col < 7 and self.board[click_row + 1][click_col + 1] == "bENPASSANT":
+                        move_enp_pos = (click_row + 1, click_col + 1)
+                        self.possible_current_moves.append((move_enp_pos))
+                        self.special_moves_list.append((move_enp_pos,"ENPASSANT"))
+                        possible_special_moves = True
                 else:
                     if click_row == 6 :
                         move_2_pos_loc = (click_row - 2 , click_col)
                         print("2MovesPossibility")
                         self.possible_current_moves.append((move_2_pos_loc))
                         self.special_moves_list.append((move_2_pos_loc,"2MovesPossibility"))
-                        return True
+                        possible_special_moves = True
+                    #Enpassant case
+                    if click_col < 7 and self.board[click_row - 1][click_col + 1] == "wENPASSANT":
+                        move_enp_pos = (click_row - 1, click_col + 1)
+                        self.possible_current_moves.append((move_enp_pos))
+                        self.special_moves_list.append((move_enp_pos,"ENPASSANT"))
+                        possible_special_moves = True
+                    if click_col > 0 and self.board[click_row - 1][click_col - 1] == "wENPASSANT":
+                        move_enp_pos = (click_row - 1, click_col - 1)
+                        self.possible_current_moves.append((move_enp_pos))
+                        self.special_moves_list.append((move_enp_pos,"ENPASSANT"))
+                        possible_special_moves = True
+                return possible_special_moves
         
 
     def check_situation(self,f_pos_tuple):
@@ -265,6 +284,10 @@ class backgroundBoard:
 
     def clean_enpassant_remains(self):
         print('Cleaning')
+        for line in range(0,8):
+            for column in range(0,8):
+                if self.board[line][column][1:] == "ENPASSANT":
+                    self.board[line][column] = "--" ## we clean it!
 
     def recalculate_castelling_possibility(self,f_pos_tuple):
         f_row,f_col = f_pos_tuple
@@ -314,6 +337,7 @@ class backgroundBoard:
             name = tuple_special_move[1] # we have the name
             row_move,col_move = tuple_special_move[0]
             if row_move == s_row and col_move == s_col : 
+                self.clean_enpassant_remains() # if we make a special move clean the enpassant!
                 if name == "casteling-left":
                     king = self.board[f_row][f_col]
                     castle = self.board[row_move][0]
@@ -336,15 +360,28 @@ class backgroundBoard:
                     self.board[f_row][f_col] = "--"
                     self.board[row_move][col_move] = pioneer
                     between_pos = (f_row + row_move)//2
-                    self.board[between_pos][f_col] = self.turn_color[1 - self.turn] + "ENPASSANT"
+                    self.board[between_pos][f_col] = self.turn_color[self.turn] + "ENPASSANT"
+                elif name == "ENPASSANT":
+                    print('Enpassant going on : ')
+                    if self.turn == 0 :
+                        pioneer = self.board[f_row][f_col]
+                        self.board[row_move - 1][col_move] = "--"
+                        self.board[row_move][col_move] = pioneer
+                    else :
+                        pioneer = self.board[f_row][f_col]
+                        self.board[row_move + 1][col_move] = "--"
+                        self.board[row_move][col_move] = pioneer
+                    self.board[f_row][f_col] = "--"
 
-                
+
+
                 self.turn = 1 - self.turn
                 return
         
         # here are the pieces that move normally, if the piece is king,castle let's act accordignly
 
         if valid_click:
+            self.clean_enpassant_remains()
             self.recalculate_castelling_possibility(f_pos_tuple)
             self.board[s_row][s_col] = self.board[f_row][f_col]
             self.board[f_row][f_col] = "--"
