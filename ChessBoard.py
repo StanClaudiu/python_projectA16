@@ -249,7 +249,18 @@ class backgroundBoard:
                     if self.board[line][column] in self.possible_basic_piece[1-self.turn] : # piesele inamicului
                         print('Case')
 
-
+    def recalculate_special_moves_possibility(self,f_pos_tuple):
+        f_row,f_col = f_pos_tuple
+        #castelling case
+        piece = self.board[f_row][f_col]
+        match piece[1]:
+            case "K":
+                self.casteling[self.turn] = [False,False]
+            case "C":
+                if f_col == 0 :
+                    self.casteling[self.turn][0] = False
+                else:
+                    self.casteling[self.turn][1] = False
 
 
     def valid_first_selection(self, pos_tuple):
@@ -306,8 +317,10 @@ class backgroundBoard:
                 self.turn = 1 - self.turn
                 return
         
+        # here are the pieces that move normally, if the piece is king,castle let's act accordignly
 
         if valid_click:
+            self.recalculate_special_moves_possibility(f_pos_tuple)
             self.board[s_row][s_col] = self.board[f_row][f_col]
             self.board[f_row][f_col] = "--"
             self.turn = 1 - self.turn
