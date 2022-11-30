@@ -54,9 +54,10 @@ class GUIChessGame:
                 self.screen.blit(square_table, (row*self.l_SQUARE, col*self.h_SQUARE))
     
     def draw_pieces(self):
+        pieces = self.table.possible_basic_piece[0] + self.table.possible_basic_piece[1]
         for col in range(0,8):
             for row in range(0,8):
-                if self.table.board[row][col] != "--":
+                if self.table.board[row][col] in pieces:
                     self.screen.blit(self.image_piece[self.table.board[row][col]],(col * self.l_SQUARE, row * self.h_SQUARE))
 
     def draw_positions_available(self):

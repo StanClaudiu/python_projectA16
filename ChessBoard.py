@@ -16,6 +16,7 @@ class backgroundBoard:
                       ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
                       ["bC", "bH", "bB", "bK", "bQ", "bB", "bH", "bC"]]
         self.turn = 0  # meaning first one, easy to to 1-self.turn
+        self.turn_color = ["w","b"]
     stack_all_transformations = list()
 
     def find_pos_colision_Oy_Ox(self, f_pos_tuple):
@@ -232,7 +233,20 @@ class backgroundBoard:
                 if right_castle or left_castle:
                     return True
             case 'P':
-                print('Pioneer case')
+                if self.turn == 0 :
+                    if click_row == 1 :
+                        print("2MovesPossibility")
+                        move_2_pos_loc = (click_row + 2 , click_col)
+                        self.possible_current_moves.append((move_2_pos_loc))
+                        self.special_moves_list.append((move_2_pos_loc,"2MovesPossibility"))
+                        return True
+                else:
+                    if click_row == 6 :
+                        move_2_pos_loc = (click_row - 2 , click_col)
+                        print("2MovesPossibility")
+                        self.possible_current_moves.append((move_2_pos_loc))
+                        self.special_moves_list.append((move_2_pos_loc,"2MovesPossibility"))
+                        return True
         
 
     def check_situation(self,f_pos_tuple):
@@ -249,7 +263,10 @@ class backgroundBoard:
                     if self.board[line][column] in self.possible_basic_piece[1-self.turn] : # piesele inamicului
                         print('Case')
 
-    def recalculate_special_moves_possibility(self,f_pos_tuple):
+    def clean_enpassant_remains(self):
+        print('Cleaning')
+
+    def recalculate_castelling_possibility(self,f_pos_tuple):
         f_row,f_col = f_pos_tuple
         #castelling case
         piece = self.board[f_row][f_col]
@@ -297,8 +314,8 @@ class backgroundBoard:
             name = tuple_special_move[1] # we have the name
             row_move,col_move = tuple_special_move[0]
             if row_move == s_row and col_move == s_col : 
-                king = self.board[f_row][f_col]
                 if name == "casteling-left":
+                    king = self.board[f_row][f_col]
                     castle = self.board[row_move][0]
                     self.board[row_move][col_move] = king
                     self.board[f_row][f_col] = "--"
@@ -306,13 +323,21 @@ class backgroundBoard:
                     self.board[row_move][col_move + 1] = castle
                     self.casteling[self.turn] = [False,False] # no more casteling
                 elif name == "casteling-right":
+                    king = self.board[f_row][f_col]
                     castle = self.board[row_move][7]
                     self.board[row_move][col_move] = king
                     self.board[f_row][f_col] = "--"
                     self.board[row_move][7] = "--"
                     self.board[row_move][col_move - 1] = castle
                     self.casteling[self.turn] = [False,False] # no more casteling
-                    print()
+                elif name == "2MovesPossibility":
+                    print('2 moves is happening')
+                    pioneer = self.board[f_row][f_col]
+                    self.board[f_row][f_col] = "--"
+                    self.board[row_move][col_move] = pioneer
+                    between_pos = (f_row + row_move)//2
+                    self.board[between_pos][f_col] = self.turn_color[1 - self.turn] + "ENPASSANT"
+
                 
                 self.turn = 1 - self.turn
                 return
@@ -320,7 +345,7 @@ class backgroundBoard:
         # here are the pieces that move normally, if the piece is king,castle let's act accordignly
 
         if valid_click:
-            self.recalculate_special_moves_possibility(f_pos_tuple)
+            self.recalculate_castelling_possibility(f_pos_tuple)
             self.board[s_row][s_col] = self.board[f_row][f_col]
             self.board[f_row][f_col] = "--"
             self.turn = 1 - self.turn
@@ -354,7 +379,9 @@ class backgroundBoard:
                           self.possible_current_moves)
             case "P":
                 print("Pioneer")
-                valid_move_ = self.find_pos_basic_moves_pioneer(f_pos_tuple)
+                valid_move = self.find_pos_basic_moves_pioneer(f_pos_tuple)
+                valid_move_special = self.find_special_moves(f_pos_tuple)
+                valid_move = valid_move_special or valid_move
             case "C":
                 print("Castle ---------")
                 valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
