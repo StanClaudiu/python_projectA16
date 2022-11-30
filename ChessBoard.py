@@ -201,6 +201,8 @@ class backgroundBoard:
         self.possible_current_moves = possible_row_col
         return len(possible_row_col) != 0
 
+
+
     def check_situation(self,f_pos_tuple):
         f_row ,f_col = f_pos_tuple
         back_up_table = self.board.copy()
@@ -212,7 +214,7 @@ class backgroundBoard:
             self.board[f_row][f_col] = "--"
             for line in range(0,8):
                 for column in range(0,8):
-                    if self.board[line][column] in self.possible_basic_piece[1-self.turn] # piesele inamicului
+                    if self.board[line][column] in self.possible_basic_piece[1-self.turn] : # piesele inamicului
                         print('Case')
 
 

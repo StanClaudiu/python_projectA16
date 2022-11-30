@@ -59,6 +59,12 @@ class GUIChessGame:
                 if self.table.board[row][col] != "--":
                     self.screen.blit(self.image_piece[self.table.board[row][col]],(col * self.l_SQUARE, row * self.h_SQUARE))
 
+    def draw_positions_available(self):
+        for (row,column) in self.table.possible_current_moves:
+            x_coordinate = self.l_SQUARE * (column + 1/2)
+            y_coordinate = self.h_SQUARE * (row + 1/2)
+            pygame.draw.circle(self.screen,'blue',(x_coordinate,y_coordinate),self.l_SQUARE//7)
+
     def handle_click(self,event):
         print("THE FIRST CLICK : ")
         f_row,f_col = self.get_click_coords(event)
@@ -74,6 +80,8 @@ class GUIChessGame:
                         s_row,s_col = self.get_click_coords(event_second)
                         self.validate_second_click((f_row,f_col),(s_row,s_col)) # modify the table
                         locked = False
+                self.draw_positions_available()
+                pygame.display.update()
     
     def validate_first_click(self,coords):
         f_row,f_col = coords
