@@ -97,6 +97,10 @@ class GUIChessGame:
             x_coordinate = self.l_SQUARE * (column + 1/2)
             y_coordinate = self.h_SQUARE * (row + 1/2)
             pygame.draw.circle(self.screen,'blue',(x_coordinate,y_coordinate),self.l_SQUARE//7)
+        for (row,column) in self.table.bad_moves:
+            x_coordinate = self.l_SQUARE * (column + 1/2)
+            y_coordinate = self.h_SQUARE * (row + 1/2)
+            pygame.draw.circle(self.screen,'red',(x_coordinate,y_coordinate),self.l_SQUARE//7)
 
     def handle_change_event(self,final_pos): # interface for selecting a Queen/Horse etc 
         print('We have a special change event')

@@ -35,8 +35,7 @@ class backgroundBoard:
         valid_click = self.verify_good_turn_color(pos_tuple) and self.verify_possible_move(pos_tuple)
         print("Primul click este valid : ", valid_click)
         print("In situatia oferita suntem in sah : ",self.simple_check_function(self.board,self.turn))
-        good_pos,bad_pos = self.check_good_positions(pos_tuple)
-        print("Good moves are : " , good_pos)
+        self.possible_current_moves,self.bad_moves= self.check_good_positions(pos_tuple)
         return valid_click
 
     def verify_good_turn_color(self, pos_tuple): # we verify the color used
