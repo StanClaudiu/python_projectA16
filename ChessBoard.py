@@ -20,6 +20,67 @@ class backgroundBoard:
         self.turn_color = ["w","b"]
     stack_all_transformations = list()
 
+
+    def valid_first_selection(self, pos_tuple): # we verify the color + if there are possible locations to move zero_check
+        self.possible_current_moves = []
+        self.special_moves_list = []
+        (f_row, f_col) = pos_tuple
+        valid_click = True  # we believe everything good
+        valid_click = self.verify_good_turn_color(pos_tuple)
+        valid_click = valid_click and self.verify_possible_move(pos_tuple)
+        print("Primul click este valid : ", valid_click)
+        return valid_click
+
+    def verify_good_turn_color(self, pos_tuple): # we verify the color
+        row, col = pos_tuple
+        if self.board[row][col] == "--":
+            return False  # we first clicked a wrong pos
+        if self.board[row][col][0] == "b" and self.turn == 0:
+            return False  # you are white, pick white!
+        if self.board[row][col][0] == "w" and self.turn == 1:
+            return False  # you are white, pick white!
+        return True
+
+    def verify_possible_move(self, f_pos_tuple): # verify if there are good moves
+        possible_zero_check_move = self.search_for_possible_moves_zero_check(f_pos_tuple)
+        return possible_zero_check_move
+
+    def search_for_possible_moves_zero_check(self,f_pos_tuple): # verify if there are possible moves, without the check functions
+        f_row, f_col = f_pos_tuple
+        piece_to_move = self.board[f_row][f_col]
+        valid_move = True
+        match piece_to_move[1]:
+           case "K":
+               valid_move = self.find_pos_basic_moves_king(f_pos_tuple)
+               valid_move_special =  self.find_special_moves(f_pos_tuple)
+               valid_move = valid_move_special or valid_move
+           case "Q":
+               valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
+               valid_moves_diagonally = self.find_pos_collision_diagonally(
+                   f_pos_tuple)
+               valid_move = valid_moves_Ox_Oy or valid_moves_diagonally
+               if valid_move:
+                   print("I can make the following moves : ",
+                         self.possible_current_moves)
+           case "P":
+               valid_move = self.find_pos_basic_moves_pioneer(f_pos_tuple)
+               valid_move_special = self.find_special_moves(f_pos_tuple)
+               valid_move = valid_move_special or valid_move
+           case "C":
+               valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
+               valid_move = valid_moves_Ox_Oy
+           case "B":
+               valid_moves_diagonally = self.find_pos_collision_diagonally(
+                   f_pos_tuple)
+               valid_move = valid_moves_diagonally
+           case "H":
+               valid_moves_basic = self.find_pos_basic_moves_horse(
+                   f_pos_tuple)
+               valid_move = valid_moves_basic
+        return valid_move
+    
+    # used by search_for_possible_moves_zero_check
+
     def find_pos_colision_Oy_Ox(self, f_pos_tuple):
         f_row, f_col = f_pos_tuple
         # let's go up
@@ -289,16 +350,35 @@ class backgroundBoard:
 
                 return possible_special_moves
         
-       
+     # used by search_for_possible_moves_zero_check   
 
-    def clean_enpassant_remains(self):
+    def make_second_selection(self, f_pos_tuple, s_pos_tuple):  # here we come with the self.possible_moves made only! with good options
+        # here we are going to validate the second click if is alright, at the moment returns true
+        s_row, s_col = s_pos_tuple
+        f_row, f_col = f_pos_tuple
+        print(self.possible_current_moves)
+
+        valid_click = (s_row, s_col) in self.possible_current_moves # aici sunt pozitiile fizic! Posibile, adica e neaparat bine
+        if not valid_click:
+            return # not a possible do able choice
+
+        if self.special_move_handler(f_pos_tuple,s_pos_tuple) :
+            return # we made a special move
+        
+        self.clean_enpassant_remains()
+        self.recalculate_castelling_possibility(f_pos_tuple)
+        self.board[s_row][s_col] = self.board[f_row][f_col]
+        self.board[f_row][f_col] = "--"
+        self.turn = 1 - self.turn
+
+    def clean_enpassant_remains(self): # cleans the remains of Enpassant from the previous round
         print('Cleaning')
         for line in range(0,8):
             for column in range(0,8):
                 if self.board[line][column][1:] == "ENPASSANT":
                     self.board[line][column] = "--" ## we clean it!
 
-    def recalculate_castelling_possibility(self,f_pos_tuple):
+    def recalculate_castelling_possibility(self,f_pos_tuple): # reconsiders if the casteling is possible after a normal round! when castelling is being performed we its made in the special_case 
         f_row,f_col = f_pos_tuple
         #castelling case
         piece = self.board[f_row][f_col]
@@ -311,26 +391,7 @@ class backgroundBoard:
                 else:
                     self.casteling[self.turn][1] = False
 
-
-    def valid_first_selection(self, pos_tuple):
-        # here we are going to validate the first click if is alright, at the moment returns true
-        self.possible_current_moves = []
-        self.special_moves_list = []
-        (f_row, f_col) = pos_tuple
-        valid_click = True  # we believe everything good
-        valid_click = self.verify_good_turn_color(pos_tuple)
-        valid_click = valid_click and self.verify_possible_move(pos_tuple)
-        print("Primul click este valid : ", valid_click)
-
-        #I will verify which cases are not good because they result in chess, I will still let the click so we can see it on the board
-        if not valid_click :
-            return valid_click
-        else :
-            # here I will verify the cases that result in check for me!
-
-            return valid_click
-
-    def special_move_handler(self,f_pos_tuple,s_pos_tuple):
+    def special_move_handler(self,f_pos_tuple,s_pos_tuple): # if the player performs a special move, it makes it, otherwise lets the make_second_selection make the normal move
         s_row, s_col = s_pos_tuple
         f_row, f_col = f_pos_tuple
         made_special_move = False
@@ -382,69 +443,3 @@ class backgroundBoard:
         return made_special_move
  
 
-    def make_second_selection(self, f_pos_tuple, s_pos_tuple):
-        # here we are going to validate the second click if is alright, at the moment returns true
-        s_row, s_col = s_pos_tuple
-        f_row, f_col = f_pos_tuple
-        print(self.possible_current_moves)
-
-        valid_click = (s_row, s_col) in self.possible_current_moves # aici sunt pozitiile fizic! Posibile, adica e neaparat bine
-        if not valid_click:
-            return # not a possible do able choice
-
-        if self.special_move_handler(f_pos_tuple,s_pos_tuple) :
-            return # we made a special move
-        
-        self.clean_enpassant_remains()
-        self.recalculate_castelling_possibility(f_pos_tuple)
-        self.board[s_row][s_col] = self.board[f_row][f_col]
-        self.board[f_row][f_col] = "--"
-        self.turn = 1 - self.turn
-            # a normal move
-
-    # we will need to verify special situations
-    def verify_possible_move(self, f_pos_tuple):
-        f_row, f_col = f_pos_tuple
-        piece_to_move = self.board[f_row][f_col]
-        valid_move = True
-
-        match piece_to_move[1]:
-            case "K":
-                valid_move = self.find_pos_basic_moves_king(f_pos_tuple)
-                valid_move_special =  self.find_special_moves(f_pos_tuple)
-                valid_move = valid_move_special or valid_move
-            case "Q":
-                valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
-                valid_moves_diagonally = self.find_pos_collision_diagonally(
-                    f_pos_tuple)
-                valid_move = valid_moves_Ox_Oy or valid_moves_diagonally
-                if valid_move:
-                    print("I can make the following moves : ",
-                          self.possible_current_moves)
-            case "P":
-                valid_move = self.find_pos_basic_moves_pioneer(f_pos_tuple)
-                valid_move_special = self.find_special_moves(f_pos_tuple)
-                valid_move = valid_move_special or valid_move
-            case "C":
-                valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
-                valid_move = valid_moves_Ox_Oy
-            case "B":
-                valid_moves_diagonally = self.find_pos_collision_diagonally(
-                    f_pos_tuple)
-                valid_move = valid_moves_diagonally
-            case "H":
-                valid_moves_basic = self.find_pos_basic_moves_horse(
-                    f_pos_tuple)
-                valid_move = valid_moves_basic
-    
-        return valid_move
-
-    def verify_good_turn_color(self, pos_tuple):
-        row, col = pos_tuple
-        if self.board[row][col] == "--":
-            return False  # we first clicked a wrong pos
-        if self.board[row][col][0] == "b" and self.turn == 0:
-            return False  # you are white, pick white!
-        if self.board[row][col][0] == "w" and self.turn == 1:
-            return False  # you are white, pick white!
-        return True
