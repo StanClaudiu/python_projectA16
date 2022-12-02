@@ -20,12 +20,6 @@ class backgroundBoard:
     stack_all_transformations = list()
 
     def find_pos_colision_Oy_Ox(self, f_pos_tuple):
-        if self.turn == 0:
-            who_moves = "w"
-            who_stays = "b"
-        else:
-            who_moves = "b"
-            who_stays = "w"
         f_row, f_col = f_pos_tuple
         print(f_row, f_col)
         # let's go up
@@ -72,12 +66,6 @@ class backgroundBoard:
         return len(self.possible_current_moves) != 0
 
     def find_pos_collision_diagonally(self, f_pos_tuple):
-        if self.turn == 0:
-            who_moves = "w"
-            who_stays = "b"
-        else:
-            who_moves = "b"
-            who_stays = "w"
         f_row, f_col = f_pos_tuple
         # let's go right-top
         c_row, c_col = f_row - 1, f_col + 1
@@ -127,7 +115,7 @@ class backgroundBoard:
             c_row += 1
         return len(self.possible_current_moves) != 0
 
-    def find_pos_basic_moves_pioneer(self, f_pos_tuple): # has the enpassant case
+    def find_pos_basic_moves_pioneer(self, f_pos_tuple): 
         f_row, f_col = f_pos_tuple
         # the white pioneer goes down
         if self.turn == 0:
@@ -154,15 +142,9 @@ class backgroundBoard:
                 if f_col > 0 and self.board[f_row - 1][f_col - 1] in enemy_pieces:
                     self.possible_current_moves.append((f_row - 1, f_col - 1))
 
-        return len(self.board) != 0
+        return len(self.possible_current_moves) != 0
 
     def find_pos_basic_moves_king(self, f_pos_tuple):
-        if self.turn == 0:
-            who_moves = "w"
-            who_stays = "b"
-        else:
-            who_moves = "b"
-            who_stays = "w"
         f_row, f_col = f_pos_tuple
         for d_line in range(-1, 2):
             for d_column in range(-1, 2):
@@ -174,7 +156,7 @@ class backgroundBoard:
                     if self.board[current_line][current_col] == "--":
                         self.possible_current_moves.append(
                             (current_line, current_col))
-                    if self.board[current_line][current_col][0] == who_stays:
+                    if self.board[current_line][current_col][0] == self.turn_color[1 - self.turn]:
                         self.possible_current_moves.append(
                             (current_line, current_col))
         return len(self.possible_current_moves) != 0
@@ -482,6 +464,7 @@ class backgroundBoard:
                 print("Horse")
                 valid_moves_basic = self.find_pos_basic_moves_horse(
                     f_pos_tuple)
+                valid_move = valid_moves_basic
         return valid_move
 
     def verify_good_turn_color(self, pos_tuple):
