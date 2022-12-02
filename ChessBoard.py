@@ -8,7 +8,7 @@ class backgroundBoard:
         self.check_resulting_situations_for_me = []
         self.casteling = [[True,True],[True,True]]
         self.special_moves_list = []
-        self.board = [["wC", "--", "--", "wK", "--", "--", "--", "wC"],
+        self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
                       ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -22,7 +22,6 @@ class backgroundBoard:
 
     def find_pos_colision_Oy_Ox(self, f_pos_tuple):
         f_row, f_col = f_pos_tuple
-        print(f_row, f_col)
         # let's go up
         current_row = f_row - 1
         while current_row >= 0:
@@ -70,12 +69,10 @@ class backgroundBoard:
         f_row, f_col = f_pos_tuple
         # let's go right-top
         c_row, c_col = f_row - 1, f_col + 1
-        print(self.board[c_row][c_col])
         while c_row >= 0 and c_col <= 7:
             if self.board[c_row][c_col] in self.possible_basic_piece[self.turn]:
                 break
             if self.board[c_row][c_col] in self.possible_basic_piece[1 - self.turn]:
-                print("Hit")
                 self.possible_current_moves.append((c_row, c_col))
                 break
             self.possible_current_moves.append((c_row, c_col))
@@ -178,7 +175,6 @@ class backgroundBoard:
             f_row + d_r) >= 0 and 7 >= (f_col + d_c) >= 0]  # possible raw moves
         possible_row_col = [(current_row, current_col) for (current_row, current_col) in possible_row_col if self.board[current_row]
                             [current_col] == "--" or self.board[current_row][current_col][0] == who_stays]
-        print(possible_row_col)
         self.possible_current_moves = possible_row_col
         return len(possible_row_col) != 0
 
@@ -423,21 +419,13 @@ class backgroundBoard:
         f_row, f_col = f_pos_tuple
         piece_to_move = self.board[f_row][f_col]
         valid_move = True
-        if self.turn == 0:
-            who_moves = "w"
-        else:
-            who_moves = "b"
 
         match piece_to_move[1]:
             case "K":
-                print("King -------------- ")
                 valid_move = self.find_pos_basic_moves_king(f_pos_tuple)
                 valid_move_special =  self.find_special_moves(f_pos_tuple)
                 valid_move = valid_move_special or valid_move
-                if valid_move:
-                    print("King can move : ", self.possible_current_moves)
             case "Q":
-                print("Queen -----------")
                 valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
                 valid_moves_diagonally = self.find_pos_collision_diagonally(
                     f_pos_tuple)
@@ -446,25 +434,17 @@ class backgroundBoard:
                     print("I can make the following moves : ",
                           self.possible_current_moves)
             case "P":
-                print("Pioneer")
                 valid_move = self.find_pos_basic_moves_pioneer(f_pos_tuple)
                 valid_move_special = self.find_special_moves(f_pos_tuple)
                 valid_move = valid_move_special or valid_move
             case "C":
-                print("Castle ---------")
                 valid_moves_Ox_Oy = self.find_pos_colision_Oy_Ox(f_pos_tuple)
                 valid_move = valid_moves_Ox_Oy
-                if valid_move:
-                    print("the moves : ", self.possible_current_moves)
             case "B":
-                print("Bishop")
                 valid_moves_diagonally = self.find_pos_collision_diagonally(
                     f_pos_tuple)
                 valid_move = valid_moves_diagonally
-                if valid_move:
-                    print("the moves : ", self.possible_current_moves)
             case "H":
-                print("Horse")
                 valid_moves_basic = self.find_pos_basic_moves_horse(
                     f_pos_tuple)
                 valid_move = valid_moves_basic
