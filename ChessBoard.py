@@ -86,6 +86,7 @@ class backgroundBoard:
                    f_pos_tuple)
                valid_move = valid_moves_basic
         return valid_move
+   
     # check_functions
 
     def simple_check_function(self,board,turn): # verify if the turn's king is in danger RIGHT-NOW!
@@ -104,11 +105,12 @@ class backgroundBoard:
                     temporary_game.turn = 1 - turn # the enemy
                     temporary_game.board = self.board.copy()
                     temporary_game.search_for_possible_moves_zero_check((line,col))
-                    if (r_king,c_king) in  temporary_game.possible_current_moves :
+                    basic_moves_enemy = temporary_game.basic_moves_finder() 
+                    if (r_king,c_king) in  basic_moves_enemy :
                         return True # we are in check
         return False
             
-
+    # check_functions
 
     def basic_moves_finder(self):
         special_moves = set(map(lambda el : el[0:2],self.special_moves_list))
