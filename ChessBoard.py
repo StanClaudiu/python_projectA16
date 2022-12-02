@@ -28,11 +28,13 @@ class backgroundBoard:
         copy_game.casteling = self.casteling.copy()
         copy_game.special_moves_list = self.special_moves_list.copy()
         copy_game.turn = self.turn
+        return copy_game
 
     def valid_first_selection(self, pos_tuple): # we verify the color + if there are possible locations to move zero_check
         (f_row, f_col) = pos_tuple
         valid_click = self.verify_good_turn_color(pos_tuple) and self.verify_possible_move(pos_tuple)
         print("Primul click este valid : ", valid_click)
+        print("In situatia oferita suntem in sah : ",self.simple_check_function(self.board,self.turn))
         return valid_click
 
     def verify_good_turn_color(self, pos_tuple): # we verify the color used
@@ -49,7 +51,7 @@ class backgroundBoard:
         possible_zero_check_move = self.search_for_possible_moves_zero_check(f_pos_tuple)
         return possible_zero_check_move
 
-    def search_for_possible_moves_zero_check(self,f_pos_tuple): # verify if there are possible moves, without the check functions, uses the self.board
+    def search_for_possible_moves_zero_check(self,f_pos_tuple): # verify if there are possible moves, resets poss and special without the check functions, uses the self.board
         self.possible_current_moves = []
         self.special_moves_list = []
         f_row, f_col = f_pos_tuple
@@ -84,7 +86,34 @@ class backgroundBoard:
                    f_pos_tuple)
                valid_move = valid_moves_basic
         return valid_move
-    
+    # check_functions
+
+    def simple_check_function(self,board,turn): # verify if the turn's king is in danger RIGHT-NOW!
+        wanted_king = self.turn_color[turn] + "K"
+        r_king,c_king = 0,0
+        for king_row in range(0,8):
+            for king_col in range(0,8):
+                if wanted_king == board[king_row][king_col]:
+                    r_king,c_king = king_row,king_col
+                    break
+        
+        for line in range(0,8):
+            for col in range(0,8):
+                if board[line][col][0] == self.turn_color[1-turn]:
+                    temporary_game = self.make_copy()
+                    temporary_game.turn = 1 - turn # the enemy
+                    temporary_game.board = self.board.copy()
+                    temporary_game.search_for_possible_moves_zero_check((line,col))
+                    if (r_king,c_king) in  temporary_game.possible_current_moves :
+                        return True # we are in check
+        return False
+            
+
+
+    def basic_moves_finder(self):
+        special_moves = set(map(lambda el : el[0:2],self.special_moves_list))
+        return list(set(self.possible_current_moves) - special_moves)
+
     # used by search_for_possible_moves_zero_check
 
     def find_pos_colision_Oy_Ox(self, f_pos_tuple):
