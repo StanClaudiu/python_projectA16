@@ -3,7 +3,6 @@ class backgroundBoard:
         # pretty self explanatory I believe
         self.possible_basic_piece = [["wC", "wH", "wB", "wK", "wQ", "wP"], [
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
-        self.am_I_the_main_board = True
         self.change_event_going_on = False
         self.possible_current_moves = []
         self.check_resulting_situations_for_me = []
@@ -290,28 +289,7 @@ class backgroundBoard:
 
                 return possible_special_moves
         
-
-    def check_function(self,table,turn): # turn means who moves, the current table, am I in check?
-       # find my king
-       auxiliar_board = backgroundBoard()
-       auxiliar_board.board = table
-       auxiliar_board.am_I_the_main_board = False
-       self.turn = 1 - turn
-       #we need the enemy
-       my_king = self.turn_color[self.turn] + "K"
-       king_pos_x,king_pos_y = 0,0
-       for row in range(0,8):
-           for col in range(0,8):
-               if my_king == table[row][col]: 
-                king_pos_x,king_pos_y = row,col
-                break
-       print('The king is at : ',king_pos_x," ",king_pos_y)
-
-       for enemy_row in range(0,8):
-           for enemy_col in range(0,8):
-               piece = auxiliar_board.board[enemy_row][enemy_col]
-               if piece[0] == auxiliar_board.turn_color[auxiliar_board.turn_color]
-               
+       
 
     def clean_enpassant_remains(self):
         print('Cleaning')
@@ -352,23 +330,15 @@ class backgroundBoard:
 
             return valid_click
 
-    def valid_second_selection(self, f_pos_tuple, s_pos_tuple):
-        # here we are going to validate the second click if is alright, at the moment returns true
+    def special_move_handler(self,f_pos_tuple,s_pos_tuple):
         s_row, s_col = s_pos_tuple
         f_row, f_col = f_pos_tuple
-        valid_click = True
-
-        # is the now pos good?, wihthout veryfing the chess condition
-
-        valid_click = (s_row, s_col) in self.possible_current_moves # aici ar trebuii sa fie +
-        if not valid_click:
-            return # not a good choice
-
-
+        made_special_move = False
         for tuple_special_move in self.special_moves_list:
             name = tuple_special_move[1] # we have the name
             row_move,col_move = tuple_special_move[0]
             if row_move == s_row and col_move == s_col : 
+                made_special_move = True
                 self.clean_enpassant_remains() # if we make a special move clean the enpassant!
                 if name == "casteling-left":
                     king = self.board[f_row][f_col]
@@ -406,23 +376,31 @@ class backgroundBoard:
                     self.board[f_row][f_col] = "--"
                 elif name == "CHANGE":
                     self.change_event_going_on = True
-                    self.board[row_move][col_move] = self.board[f_row][f_col]# here we will make a handler for getting what the player wants
-                                                    #horse,castle,queen,bishop
+                    self.board[row_move][col_move] = self.board[f_row][f_col]
                     self.board[f_row][f_col] = "--"
-
-
-
                 self.turn = 1 - self.turn
-                return
-        
-        # here are the pieces that move normally, if the piece is king,castle let's act accordignly
+        return made_special_move
+ 
 
-        if valid_click:
-            self.clean_enpassant_remains()
-            self.recalculate_castelling_possibility(f_pos_tuple)
-            self.board[s_row][s_col] = self.board[f_row][f_col]
-            self.board[f_row][f_col] = "--"
-            self.turn = 1 - self.turn
+    def make_second_selection(self, f_pos_tuple, s_pos_tuple):
+        # here we are going to validate the second click if is alright, at the moment returns true
+        s_row, s_col = s_pos_tuple
+        f_row, f_col = f_pos_tuple
+        print(self.possible_current_moves)
+
+        valid_click = (s_row, s_col) in self.possible_current_moves # aici sunt pozitiile fizic! Posibile, adica e neaparat bine
+        if not valid_click:
+            return # not a possible do able choice
+
+        if self.special_move_handler(f_pos_tuple,s_pos_tuple) :
+            return # we made a special move
+        
+        self.clean_enpassant_remains()
+        self.recalculate_castelling_possibility(f_pos_tuple)
+        self.board[s_row][s_col] = self.board[f_row][f_col]
+        self.board[f_row][f_col] = "--"
+        self.turn = 1 - self.turn
+            # a normal move
 
     # we will need to verify special situations
     def verify_possible_move(self, f_pos_tuple):
@@ -458,9 +436,7 @@ class backgroundBoard:
                 valid_moves_basic = self.find_pos_basic_moves_horse(
                     f_pos_tuple)
                 valid_move = valid_moves_basic
-        
-        if self.am_I_the_main_board : #I am working with the main board
-            self.check_function(self.board,self.turn)
+    
         return valid_move
 
     def verify_good_turn_color(self, pos_tuple):

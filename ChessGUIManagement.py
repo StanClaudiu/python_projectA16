@@ -141,7 +141,7 @@ class GUIChessGame:
     def validate_second_click(self,coords,coords_2):
         f_row,f_col = coords
         print("We have the Square : (",f_row,",",f_col,")")
-        self.table.valid_second_selection((f_row,f_col),coords_2)
+        self.table.make_second_selection((f_row,f_col),coords_2)
 
     def get_click_coords(self,event):
         return event.pos[1] // self.l_SQUARE,event.pos[0] // self.h_SQUARE
