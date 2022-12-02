@@ -3,6 +3,7 @@ class backgroundBoard:
         # pretty self explanatory I believe
         self.possible_basic_piece = [["wC", "wH", "wB", "wK", "wQ", "wP"], [
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
+        self.am_I_the_main_board = True
         self.change_event_going_on = False
         self.possible_current_moves = []
         self.check_resulting_situations_for_me = []
@@ -290,19 +291,27 @@ class backgroundBoard:
                 return possible_special_moves
         
 
-    def check_situation(self,f_pos_tuple):
-        f_row ,f_col = f_pos_tuple
-        back_up_table = self.board.copy()
-        back_up_selections = self.possible_current_moves.copy()
-        # we have a copy of them
-        for (tried_line,tried_column) in back_up_selections : # merg prin toate situatiile
-            self.board = back_up_table.copy()
-            self.board[tried_line][tried_column] = self.board[f_row][f_col]
-            self.board[f_row][f_col] = "--"
-            for line in range(0,8):
-                for column in range(0,8):
-                    if self.board[line][column] in self.possible_basic_piece[1-self.turn] : # piesele inamicului
-                        print('Case')
+    def check_function(self,table,turn): # turn means who moves, the current table, am I in check?
+       # find my king
+       auxiliar_board = backgroundBoard()
+       auxiliar_board.board = table
+       auxiliar_board.am_I_the_main_board = False
+       self.turn = 1 - turn
+       #we need the enemy
+       my_king = self.turn_color[self.turn] + "K"
+       king_pos_x,king_pos_y = 0,0
+       for row in range(0,8):
+           for col in range(0,8):
+               if my_king == table[row][col]: 
+                king_pos_x,king_pos_y = row,col
+                break
+       print('The king is at : ',king_pos_x," ",king_pos_y)
+
+       for enemy_row in range(0,8):
+           for enemy_col in range(0,8):
+               piece = auxiliar_board.board[enemy_row][enemy_col]
+               if piece[0] == auxiliar_board.turn_color[auxiliar_board.turn_color]
+               
 
     def clean_enpassant_remains(self):
         print('Cleaning')
@@ -354,6 +363,7 @@ class backgroundBoard:
         valid_click = (s_row, s_col) in self.possible_current_moves # aici ar trebuii sa fie +
         if not valid_click:
             return # not a good choice
+
 
         for tuple_special_move in self.special_moves_list:
             name = tuple_special_move[1] # we have the name
@@ -448,6 +458,9 @@ class backgroundBoard:
                 valid_moves_basic = self.find_pos_basic_moves_horse(
                     f_pos_tuple)
                 valid_move = valid_moves_basic
+        
+        if self.am_I_the_main_board : #I am working with the main board
+            self.check_function(self.board,self.turn)
         return valid_move
 
     def verify_good_turn_color(self, pos_tuple):
