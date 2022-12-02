@@ -3,6 +3,7 @@ class backgroundBoard:
         # pretty self explanatory I believe
         self.possible_basic_piece = [["wC", "wH", "wB", "wK", "wQ", "wP"], [
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
+        self.change_event_going_on = False
         self.possible_current_moves = []
         self.check_resulting_situations_for_me = []
         self.casteling = [[True,True],[True,True]]
@@ -398,9 +399,11 @@ class backgroundBoard:
                         self.board[row_move][col_move] = pioneer
                     self.board[f_row][f_col] = "--"
                 elif name == "CHANGE":
-                    self.board[f_row][f_col] = "--"
-                    self.board[row_move][col_move] = "wQ"# here we will make a handler for getting what the player wants
+                    self.change_event_going_on = True
+                    self.board[row_move][col_move] = self.board[f_row][f_col]# here we will make a handler for getting what the player wants
                                                     #horse,castle,queen,bishop
+                    self.board[f_row][f_col] = "--"
+
 
 
                 self.turn = 1 - self.turn

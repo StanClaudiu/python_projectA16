@@ -66,6 +66,51 @@ class GUIChessGame:
             y_coordinate = self.h_SQUARE * (row + 1/2)
             pygame.draw.circle(self.screen,'blue',(x_coordinate,y_coordinate),self.l_SQUARE//7)
 
+    def handle_change_event(self,final_pos):
+        print('We have a special change event')
+        actual_turn = 1 - self.table.turn
+        self.table.change_event_going_on = False # I will manage it right now
+        minimize_rate = 0.8
+        left_padding = 4 *  (1 - minimize_rate) * self.l_SQUARE
+        l_modified_square = 2 * minimize_rate * self.l_SQUARE
+        h_modified_square = 2 * minimize_rate * self.h_SQUARE
+        #show choices in here:
+        piece_choices = []
+        if actual_turn == 1:
+            piece_choices = ['bQ','bH','bB','bC']
+            top_padding = self.h_pixels - self.h_SQUARE * 2 - h_modified_square
+        else:
+            piece_choices = ['wQ','wH','wB','wC']
+            top_padding = self.h_SQUARE * 2 
+        for index,piece_choice in enumerate(piece_choices):
+            image = pygame.transform.scale(self.image_piece[piece_choice],(l_modified_square,h_modified_square))
+            image.fill((255, 255, 255, 126), None, pygame.BLEND_RGBA_MULT)
+            position_image = (left_padding + l_modified_square * index,top_padding)
+            self.screen.blit(image,position_image)
+        pygame.display.update()
+        locked = True
+        print("Entered here")
+        while locked :
+            for event_selection in pygame.event.get():
+                if event_selection.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event_selection.type == pygame.MOUSEBUTTONDOWN :
+                    print("We got a click")
+                    #now let's see what he chose
+                    coord_x,coord_y = event_selection.pos
+                    for index,piece_choice in enumerate(piece_choices):
+                        left_limit = left_padding + index * l_modified_square
+                        right_limit = left_limit + l_modified_square
+                        bottom_limit = top_padding + h_modified_square
+                        top_limit = top_padding
+                        if left_limit <= coord_x <= right_limit and top_limit <= coord_y <= bottom_limit:
+                            self.table.board[final_pos[0]][final_pos[1]] = piece_choice
+                            locked = False
+                            break
+                            
+
+
     def handle_click(self,event):
         print("THE FIRST CLICK : ")
         f_row,f_col = self.get_click_coords(event)
@@ -80,6 +125,8 @@ class GUIChessGame:
                         print("THE SECOND CLICK")
                         s_row,s_col = self.get_click_coords(event_second)
                         self.validate_second_click((f_row,f_col),(s_row,s_col)) # modify the table
+                        if self.table.change_event_going_on:
+                           self.handle_change_event((s_row,s_col))
                         locked = False
                 self.draw_positions_available()
                 pygame.display.update()
