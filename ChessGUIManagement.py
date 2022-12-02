@@ -22,7 +22,7 @@ class GUIChessGame:
         pygame.display.set_caption('Chess Game')
         self.clock = pygame.time.Clock()
 
-    def start_game(self):
+    def start_game(self): # starts the game, it firstly paints the board and after waits for instr from players
         first_time = True
         while True:
             if not first_time :
@@ -41,9 +41,41 @@ class GUIChessGame:
             print("Ajung sa redesenez")
             pygame.display.update()
             first_time = False
-           
 
-    def draw_table(self):
+    def handle_click(self,event): #handles the interaction after the first click
+        print("THE FIRST CLICK : ")
+        f_row,f_col = self.get_click_coords(event)
+        if self.validate_first_click((f_row,f_col)): # I can make the second choice if the first one was good
+            locked = True
+            while locked :
+                for event_second in pygame.event.get():
+                    if event_second.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                    if event_second.type == pygame.MOUSEBUTTONDOWN:
+                        print("THE SECOND CLICK")
+                        s_row,s_col = self.get_click_coords(event_second)
+                        self.validate_second_click((f_row,f_col),(s_row,s_col)) # modify the table
+                        if self.table.change_event_going_on:
+                           self.handle_change_event((s_row,s_col))
+                        locked = False
+                self.draw_positions_available()
+                pygame.display.update()
+
+#used by handle_click
+
+    def validate_first_click(self,coords): # sees if the first click has zero_check possible moves
+        f_row,f_col = coords
+        print("We have the Square : (",f_row,",",f_col,")")
+        if self.table.valid_first_selection((f_row,f_col)):
+            return True
+    
+    def validate_second_click(self,coords,coords_2): # makes/ not makes the changes to the table accordingly after the second click
+        f_row,f_col = coords
+        print("We have the Square : (",f_row,",",f_col,")")
+        self.table.make_second_selection((f_row,f_col),coords_2)
+
+    def draw_table(self): # draw white and black squares
         for row in range(0, 8):
             for col in range(0, 8):
                 square_table = pygame.Surface((self.l_SQUARE, self.h_SQUARE))
@@ -53,20 +85,20 @@ class GUIChessGame:
                     square_table.fill('gray')
                 self.screen.blit(square_table, (row*self.l_SQUARE, col*self.h_SQUARE))
     
-    def draw_pieces(self):
+    def draw_pieces(self): # draws only the pieces, mendatory after draw_table
         pieces = self.table.possible_basic_piece[0] + self.table.possible_basic_piece[1]
         for col in range(0,8):
             for row in range(0,8):
                 if self.table.board[row][col] in pieces:
                     self.screen.blit(self.image_piece[self.table.board[row][col]],(col * self.l_SQUARE, row * self.h_SQUARE))
 
-    def draw_positions_available(self):
+    def draw_positions_available(self): # used to draw the available positions, will be refactor to do much more with the not wanted pos
         for (row,column) in self.table.possible_current_moves:
             x_coordinate = self.l_SQUARE * (column + 1/2)
             y_coordinate = self.h_SQUARE * (row + 1/2)
             pygame.draw.circle(self.screen,'blue',(x_coordinate,y_coordinate),self.l_SQUARE//7)
 
-    def handle_change_event(self,final_pos):
+    def handle_change_event(self,final_pos): # interface for selecting a Queen/Horse etc 
         print('We have a special change event')
         actual_turn = 1 - self.table.turn
         self.table.change_event_going_on = False # I will manage it right now
@@ -109,45 +141,16 @@ class GUIChessGame:
                             locked = False
                             break
                             
-
-
-    def handle_click(self,event):
-        print("THE FIRST CLICK : ")
-        f_row,f_col = self.get_click_coords(event)
-        if self.validate_first_click((f_row,f_col)): # I can make the second choice if the first one was good
-            locked = True
-            while locked :
-                for event_second in pygame.event.get():
-                    if event_second.type == pygame.QUIT:
-                            pygame.quit()
-                            exit()
-                    if event_second.type == pygame.MOUSEBUTTONDOWN:
-                        print("THE SECOND CLICK")
-                        s_row,s_col = self.get_click_coords(event_second)
-                        self.validate_second_click((f_row,f_col),(s_row,s_col)) # modify the table
-                        if self.table.change_event_going_on:
-                           self.handle_change_event((s_row,s_col))
-                        locked = False
-                self.draw_positions_available()
-                pygame.display.update()
-    
-    def validate_first_click(self,coords):
-        f_row,f_col = coords
-        print("We have the Square : (",f_row,",",f_col,")")
-        if self.table.valid_first_selection((f_row,f_col)):
-            return True
-    
-    # if is good modify the table, otherwise no
-    def validate_second_click(self,coords,coords_2):
-        f_row,f_col = coords
-        print("We have the Square : (",f_row,",",f_col,")")
-        self.table.make_second_selection((f_row,f_col),coords_2)
-
-    def get_click_coords(self,event):
+    def get_click_coords(self,event): # get the click coords
         return event.pos[1] // self.l_SQUARE,event.pos[0] // self.h_SQUARE
 
+#used by handle_click
 
 
+############
+############
+############
+############
             
 
 def main():

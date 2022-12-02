@@ -20,18 +20,22 @@ class backgroundBoard:
         self.turn_color = ["w","b"]
     stack_all_transformations = list()
 
+    def make_copy(self): # creates a shallow copy of the calling board
+        copy_game = backgroundBoard()
+        copy_game.board = self.board.copy()
+        copy_game.possible_current_moves = self.possible_current_moves.copy()
+        copy_game.check_resulting_situations_for_me = self.check_resulting_situations_for_me.copy()
+        copy_game.casteling = self.casteling.copy()
+        copy_game.special_moves_list = self.special_moves_list.copy()
+        copy_game.turn = self.turn
 
     def valid_first_selection(self, pos_tuple): # we verify the color + if there are possible locations to move zero_check
-        self.possible_current_moves = []
-        self.special_moves_list = []
         (f_row, f_col) = pos_tuple
-        valid_click = True  # we believe everything good
-        valid_click = self.verify_good_turn_color(pos_tuple)
-        valid_click = valid_click and self.verify_possible_move(pos_tuple)
+        valid_click = self.verify_good_turn_color(pos_tuple) and self.verify_possible_move(pos_tuple)
         print("Primul click este valid : ", valid_click)
         return valid_click
 
-    def verify_good_turn_color(self, pos_tuple): # we verify the color
+    def verify_good_turn_color(self, pos_tuple): # we verify the color used
         row, col = pos_tuple
         if self.board[row][col] == "--":
             return False  # we first clicked a wrong pos
@@ -41,11 +45,13 @@ class backgroundBoard:
             return False  # you are white, pick white!
         return True
 
-    def verify_possible_move(self, f_pos_tuple): # verify if there are good moves
+    def verify_possible_move(self, f_pos_tuple): # verify if there are good moves, evidently uses self.board
         possible_zero_check_move = self.search_for_possible_moves_zero_check(f_pos_tuple)
         return possible_zero_check_move
 
-    def search_for_possible_moves_zero_check(self,f_pos_tuple): # verify if there are possible moves, without the check functions
+    def search_for_possible_moves_zero_check(self,f_pos_tuple): # verify if there are possible moves, without the check functions, uses the self.board
+        self.possible_current_moves = []
+        self.special_moves_list = []
         f_row, f_col = f_pos_tuple
         piece_to_move = self.board[f_row][f_col]
         valid_move = True
@@ -174,7 +180,7 @@ class backgroundBoard:
             c_row += 1
         return len(self.possible_current_moves) != 0
 
-    def find_pos_basic_moves_pioneer(self, f_pos_tuple): 
+    def find_pos_basic_moves_pioneer(self, f_pos_tuple): #not special moves!
         f_row, f_col = f_pos_tuple
         # the white pioneer goes down
         if self.turn == 0:
@@ -203,7 +209,7 @@ class backgroundBoard:
 
         return len(self.possible_current_moves) != 0
 
-    def find_pos_basic_moves_king(self, f_pos_tuple):
+    def find_pos_basic_moves_king(self, f_pos_tuple): # not special moves!
         f_row, f_col = f_pos_tuple
         for d_line in range(-1, 2):
             for d_column in range(-1, 2):
@@ -220,7 +226,7 @@ class backgroundBoard:
                             (current_line, current_col))
         return len(self.possible_current_moves) != 0
 
-    def find_pos_basic_moves_horse(self, f_pos_tuple):
+    def find_pos_basic_moves_horse(self, f_pos_tuple): #not special moves!
         if self.turn == 0:
             who_moves = "w"
             who_stays = "b"
@@ -239,7 +245,7 @@ class backgroundBoard:
         self.possible_current_moves = possible_row_col
         return len(possible_row_col) != 0
 
-    def find_special_moves(self, f_pos_tuple):
+    def find_special_moves(self, f_pos_tuple): # only the special moves
         # cases : king - castles , pioneer last pos, 2MovesPioneer
         pieces = self.possible_basic_piece[0] + self.possible_basic_piece[1]
 
@@ -350,7 +356,7 @@ class backgroundBoard:
 
                 return possible_special_moves
         
-     # used by search_for_possible_moves_zero_check   
+     # used by search_for_possible_moves_zero_check   all uses self.board
 
     def make_second_selection(self, f_pos_tuple, s_pos_tuple):  # here we come with the self.possible_moves made only! with good options
         # here we are going to validate the second click if is alright, at the moment returns true
