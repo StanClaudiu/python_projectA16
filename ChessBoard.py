@@ -5,7 +5,7 @@ class backgroundBoard:
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
         self.change_event_going_on = False
         self.possible_current_moves = []
-        self.check_resulting_situations_for_me = []
+        self.bad_moves = []
         self.casteling = [[True,True],[True,True]]
         self.special_moves_list = []
         self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
@@ -22,10 +22,10 @@ class backgroundBoard:
 
     def make_copy(self): # creates a shallow copy of the calling board
         copy_game = backgroundBoard()
-        copy_game.board = self.board.copy()
+        copy_game.board = [line[:] for line in self.board]
         copy_game.possible_current_moves = self.possible_current_moves.copy()
-        copy_game.check_resulting_situations_for_me = self.check_resulting_situations_for_me.copy()
-        copy_game.casteling = self.casteling.copy()
+        copy_game.bad_moves = self.bad_moves.copy()
+        copy_game.casteling = [ casteling[:] for casteling in self.casteling]
         copy_game.special_moves_list = self.special_moves_list.copy()
         copy_game.turn = self.turn
         return copy_game
@@ -35,6 +35,8 @@ class backgroundBoard:
         valid_click = self.verify_good_turn_color(pos_tuple) and self.verify_possible_move(pos_tuple)
         print("Primul click este valid : ", valid_click)
         print("In situatia oferita suntem in sah : ",self.simple_check_function(self.board,self.turn))
+        good_pos,bad_pos = self.check_good_positions(pos_tuple)
+        print("Good moves are : " , good_pos)
         return valid_click
 
     def verify_good_turn_color(self, pos_tuple): # we verify the color used
@@ -103,13 +105,47 @@ class backgroundBoard:
                 if board[line][col][0] == self.turn_color[1-turn]:
                     temporary_game = self.make_copy()
                     temporary_game.turn = 1 - turn # the enemy
-                    temporary_game.board = self.board.copy()
+                    temporary_game.board = board.copy()
                     temporary_game.search_for_possible_moves_zero_check((line,col))
                     basic_moves_enemy = temporary_game.basic_moves_finder() 
                     if (r_king,c_king) in  basic_moves_enemy :
                         return True # we are in check
         return False
-            
+
+    def check_good_positions(self,f_pos_tuple): # verify the good position in a given state
+        f_line,f_col = f_pos_tuple
+        temporary_game = self.make_copy()
+        temporary_game.search_for_possible_moves_zero_check(f_pos_tuple)
+        basic_moves = temporary_game.basic_moves_finder()
+        special_moves = temporary_game.special_moves_list.copy()
+        good_basic_move =[]
+        good_special_move =[]
+        bad_moves =[]
+
+        piece = temporary_game.board[f_line][f_col]
+        for basic_move in basic_moves:
+            new_game = temporary_game.make_copy()
+            move_line,move_column = basic_move
+            new_game.board[move_line][move_column] = piece
+            new_game.board[f_line][f_col] = "--"
+            if new_game.simple_check_function(new_game.board,new_game.turn):
+                bad_moves.append(basic_move)
+            else:
+                good_basic_move.append(basic_move)
+        for special_move in special_moves:
+            new_game = temporary_game.make_copy()
+            move_line,move_column = special_move[0]
+             #we make the second move, but special
+            new_game.special_moves_list = [special_move]
+            new_game.possible_basic_piece = [(move_line,move_column)]
+            new_game.make_second_selection(f_pos_tuple,(move_line,move_column))
+            if new_game.simple_check_function(new_game.board,1 - new_game.turn):
+                bad_moves.append((move_line,move_column))
+            else:
+                good_special_move.append((move_line,move_column))
+        
+        return (list(set(good_special_move + good_basic_move)),bad_moves)
+
     # check_functions
 
     def basic_moves_finder(self):
