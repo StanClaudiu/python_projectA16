@@ -215,7 +215,7 @@ class backgroundBoard:
                 possible_special_moves = False
                 if self.turn == 0 :
                     enemy_pieces = self.possible_basic_piece[1-self.turn].copy()
-                    if click_row == 1 and self.board[click_row + 2][click_col] not in pieces: # 2MoveWhite
+                    if click_row == 1 and self.board[click_row + 2][click_col] not in pieces and self.board[click_row + 1][click_col] not in pieces: # 2MoveWhite
                         print("2MovesPossibility")
                         move_2_pos_loc = (click_row + 2 , click_col)
                         self.possible_current_moves.append((move_2_pos_loc))
@@ -253,7 +253,7 @@ class backgroundBoard:
                             print("We may change this piece")
                 else:
                     enemy_pieces = self.possible_basic_piece[1-self.turn].copy()
-                    if click_row == 6 and self.board[click_row - 2][click_col] not in pieces : # 2Move
+                    if click_row == 6 and self.board[click_row - 2][click_col] not in pieces and self.board[click_row - 1][click_col] not in pieces: # 2Move
                         move_2_pos_loc = (click_row - 2 , click_col)
                         print("2MovesPossibility")
                         self.possible_current_moves.append((move_2_pos_loc))
