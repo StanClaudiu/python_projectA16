@@ -21,6 +21,13 @@ class backgroundBoard:
         self.turn_color = ["w","b"]
     stack_all_transformations = list()
 
+    def find_my_king(self,turn):
+        king_I_want = self.turn_color[turn] + "K"
+        for row in range(0,8):
+            for col in range(0,8):
+                if (self.board[row][col] == king_I_want) : 
+                    return (col,row)
+
     def make_copy(self): # creates a shallow copy of the calling board
         copy_game = backgroundBoard()
         copy_game.board = [line[:] for line in self.board]

@@ -80,7 +80,7 @@ class GUIChessGame:
         print("We have the Square : (",f_row,",",f_col,")")
         self.table.make_second_selection((f_row,f_col),coords_2)
 
-    def draw_table(self): # draw white and black squares
+    def draw_table(self): # draw white and black squares, red for when in check
         for row in range(0, 8):
             for col in range(0, 8):
                 square_table = pygame.Surface((self.l_SQUARE, self.h_SQUARE))
@@ -89,6 +89,13 @@ class GUIChessGame:
                 else:
                     square_table.fill('gray')
                 self.screen.blit(square_table, (row*self.l_SQUARE, col*self.h_SQUARE))
+        if self.table.simple_check_function(self.table.board,self.table.turn):
+            king_row,king_col = self.table.find_my_king(self.table.turn)
+            square_table = pygame.Surface((self.l_SQUARE, self.h_SQUARE))
+            square_table.fill('red')
+            self.screen.blit(square_table, (king_row*self.l_SQUARE, king_col*self.h_SQUARE))
+
+            
     
     def draw_pieces(self): # draws only the pieces, mendatory after draw_table
         pieces = self.table.possible_basic_piece[0] + self.table.possible_basic_piece[1]
