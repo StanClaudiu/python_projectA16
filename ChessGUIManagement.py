@@ -28,7 +28,7 @@ class GUIChessGame:
             if not first_time :
                 locked = True
                 while locked : 
-                    if self.table.check_mate_flag:
+                    if self.table.check_mate_flag or  self.table.check_mate_function():
                         self.finish_game_handler()
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
@@ -65,9 +65,45 @@ class GUIChessGame:
                 pygame.display.update()
 
     def finish_game_handler(self): # This function will say who won, and after a click will close the program
-        
-        pygame.quit()
-        exit()
+        # let's make the table
+        alpha_factor = 0.8
+        length_winning_panel = self.l_pixels * alpha_factor
+        height_winning_panel = self.h_pixels * alpha_factor
+
+        left_right_padding = (1 - alpha_factor) / 2 * length_winning_panel
+        up_down_padding = (1 - alpha_factor) /2  * height_winning_panel
+
+        print('The game is done ')
+
+        font_render = pygame.font.Font(None,50)
+
+
+
+        if self.table.turn == 0:
+            text_surface = font_render.render('The winner is : black!',False,(0,0,0))
+            image = pygame.transform.smoothscale(self.image_piece["bQ"],(length_winning_panel//3,height_winning_panel//3))
+            image.fill((255, 255, 255, 255), None, pygame.BLEND_RGBA_MULT)
+        else:
+            text_surface = font_render.render('The winner is : white!',False,(0,0,0))
+            image = pygame.transform.smoothscale(self.image_piece["wQ"],(length_winning_panel//3,height_winning_panel//3))
+            image.fill((255, 255, 255, 255), None, pygame.BLEND_RGBA_MULT)
+
+        surface = pygame.Surface((length_winning_panel,height_winning_panel))
+        surface.fill((255,255,255))
+        surface.blit(text_surface,pygame.Rect(left_right_padding,up_down_padding,length_winning_panel,height_winning_panel))
+        surface.set_alpha(220)
+        self.screen.blit(surface,pygame.Rect(left_right_padding,up_down_padding,length_winning_panel,height_winning_panel))
+        self.screen.blit(image,(self.l_pixels /2 - length_winning_panel//6,height_winning_panel//3))
+        pygame.display.update()
+
+        while True:
+             for event_second in pygame.event.get():
+                    if event_second.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                    if event_second.type == pygame.MOUSEBUTTONDOWN:
+                             pygame.quit()
+                             exit()
 
 #used by handle_click
 
