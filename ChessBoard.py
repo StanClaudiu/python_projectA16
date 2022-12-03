@@ -3,6 +3,7 @@ class backgroundBoard:
         # pretty self explanatory I believe
         self.possible_basic_piece = [["wC", "wH", "wB", "wK", "wQ", "wP"], [
             "bC", "bH", "bB", "bK", "bQ", "bP"]]
+        self.check_mate_flag = False
         self.change_event_going_on = False
         self.possible_current_moves = []
         self.bad_moves = []
@@ -28,14 +29,17 @@ class backgroundBoard:
         copy_game.casteling = [ casteling[:] for casteling in self.casteling]
         copy_game.special_moves_list = self.special_moves_list.copy()
         copy_game.turn = self.turn
+        copy_game.check_mate_flag = self.check_mate_flag
         return copy_game
 
     def valid_first_selection(self, pos_tuple): # we verify the color + if there are possible locations to move zero_check
         (f_row, f_col) = pos_tuple
         valid_click = self.verify_good_turn_color(pos_tuple) and self.verify_possible_move(pos_tuple)
         print("Primul click este valid : ", valid_click)
-        print("In situatia oferita suntem in sah : ",self.simple_check_function(self.board,self.turn))
         self.possible_current_moves,self.bad_moves= self.check_good_positions(pos_tuple)
+        if self.check_mate_function():
+            self.check_mate_flag = True
+            valid_click = False # there's nothig  we can do
         return valid_click
 
     def verify_good_turn_color(self, pos_tuple): # we verify the color used
@@ -145,6 +149,18 @@ class backgroundBoard:
         
         return (list(set(good_special_move + good_basic_move)),bad_moves)
 
+    def check_mate_function(self):
+        my_disponible_pieces = []
+        for row in range(0,8):
+            for col in range(0,8):
+                if self.board[row][col][0]== self.turn_color[self.turn]:
+                    my_disponible_pieces.append((row,col))
+        for (p_line,p_col) in my_disponible_pieces:
+            good,bad = self.check_good_positions((p_line,p_col))
+            if len(good)!= 0:
+                return False
+        return True
+                    
     # check_functions
 
     def basic_moves_finder(self):

@@ -28,6 +28,8 @@ class GUIChessGame:
             if not first_time :
                 locked = True
                 while locked : 
+                    if self.table.check_mate_flag:
+                        self.finish_game_handler()
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
@@ -61,6 +63,9 @@ class GUIChessGame:
                         locked = False
                 self.draw_positions_available()
                 pygame.display.update()
+
+    def finish_game_handler(self): # This function will say who won, and after a click will close the program
+        print("Game Done")
 
 #used by handle_click
 
