@@ -65,7 +65,9 @@ class GUIChessGame:
                 pygame.display.update()
 
     def finish_game_handler(self): # This function will say who won, and after a click will close the program
-        print("Game Done")
+        
+        pygame.quit()
+        exit()
 
 #used by handle_click
 
