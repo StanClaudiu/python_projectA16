@@ -9,7 +9,7 @@ class backgroundBoard:
         self.bad_moves = []
         self.casteling = [[True,True],[True,True]]
         self.special_moves_list = []
-        self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
+        self.board = [["wC", "--", "--", "wK", "wQ", "wB", "wH", "wC"],
                       ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -142,17 +142,27 @@ class backgroundBoard:
                 bad_moves.append(basic_move)
             else:
                 good_basic_move.append(basic_move)
+       
         for special_move in special_moves:
-            new_game = temporary_game.make_copy()
-            move_line,move_column = special_move[0]
-             #we make the second move, but special
-            new_game.special_moves_list = [special_move]
-            new_game.possible_basic_piece = [(move_line,move_column)]
-            new_game.make_second_selection(f_pos_tuple,(move_line,move_column))
-            if new_game.simple_check_function(new_game.board,1 - new_game.turn):
-                bad_moves.append((move_line,move_column))
-            else:
-                good_special_move.append((move_line,move_column))
+            #special case king in check
+            if special_move[1] in ["casteling-right","casteling-left"]:
+                print('Caz special rege, la castelare ')
+                new_game = temporary_game.make_copy()
+                if new_game.simple_check_function(new_game.board,new_game.turn): # regele este in check
+                    bad_moves.append(special_move[0])
+                else:
+                    good_special_move.append(special_move[0])
+            else: 
+                new_game = temporary_game.make_copy()
+                move_line,move_column = special_move[0]
+                #we make the second move, but special
+                new_game.special_moves_list = [special_move]
+                new_game.possible_basic_piece = [(move_line,move_column)]
+                new_game.make_second_selection(f_pos_tuple,(move_line,move_column))
+                if new_game.simple_check_function(new_game.board,1 - new_game.turn):
+                    bad_moves.append((move_line,move_column))
+                else:
+                    good_special_move.append((move_line,move_column))
         
         return (list(set(good_special_move + good_basic_move)),bad_moves)
 
