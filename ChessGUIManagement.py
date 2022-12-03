@@ -1,5 +1,5 @@
 import pygame
-from sys import exit
+from sys import exit,argv
 import ChessBoard
 
 
@@ -22,7 +22,21 @@ class GUIChessGame:
         pygame.display.set_caption('Chess Game')
         self.clock = pygame.time.Clock()
 
-    def start_game(self): # starts the game, it firstly paints the board and after waits for instr from players
+    def get_type(self):
+        print('Getting game type')
+        assert len(argv) == 2 and argv[1] in ["human","bot"]
+        self.type_of_game = argv[1]
+
+    def start_game(self): # start the game, selecting pvp or pvb
+        if self.type_of_game == "human":
+            self.start_game_human()
+        else :
+            self.start_game_bot()
+
+    def start_game_bot(self): # start the game against a bot
+        print('Against bots')
+
+    def start_game_human(self): # starts the game, it firstly paints the board and after waits for instr from players
         first_time = True
         while True:
             if not first_time :
@@ -208,8 +222,8 @@ class GUIChessGame:
             
 
 def main():
-    print("Here we are going to try to make this bullshit")
     game = GUIChessGame(600, 600)
+    game.get_type()
     game.start_game()
 
 

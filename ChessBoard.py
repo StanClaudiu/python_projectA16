@@ -9,7 +9,7 @@ class backgroundBoard:
         self.bad_moves = []
         self.casteling = [[True,True],[True,True]]
         self.special_moves_list = []
-        self.board = [["wC", "--", "--", "wK", "wQ", "wB", "wH", "wC"],
+        self.board = [["wC", "wH", "wB", "wK", "wQ", "wB", "wH", "wC"],
                       ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
                       ["--", "--", "--", "--", "--", "--", "--", "--"],
