@@ -34,7 +34,8 @@ class GUIChessGame:
             self.start_game_bot()
 
     def start_game_bot(self): # start the game against a bot
-        print('Against bots')
+        print('Against a bot')
+        self.handle_get_wanted_color()
 
     def start_game_human(self): # starts the game, it firstly paints the board and after waits for instr from players
         first_time = True
@@ -78,6 +79,67 @@ class GUIChessGame:
                 self.draw_positions_available()
                 pygame.display.update()
 
+    def handle_get_wanted_color(self): # get the color that the player wants
+        alpha_factor = 0.8
+        length_winning_panel = self.l_pixels * alpha_factor
+        height_winning_panel = self.h_pixels * alpha_factor
+
+        left_right_padding = (1 - alpha_factor) / 2 * length_winning_panel
+        up_down_padding = (1 - alpha_factor) /2  * height_winning_panel
+
+        queen_length = (length_winning_panel//3)
+        queen_height = (height_winning_panel//3)
+
+        font_render = pygame.font.Font(None,50)
+        text_surface = font_render.render('Choose the color you want : ',False,(255,255,255))
+
+        image_black = pygame.transform.smoothscale(self.image_piece["bQ"],(queen_length,queen_height))
+        image_white = pygame.transform.smoothscale(self.image_piece["wQ"],(queen_length,queen_height))
+
+        space_between = length_winning_panel * 0.1
+        pos_white_queen_ox = ((length_winning_panel - space_between) - 2 * queen_length) //2
+
+        pos_black_queen_ox = ((length_winning_panel - space_between) - 2 * queen_length) //2 + space_between + queen_length
+
+        pos_queens_oy = 200
+
+
+        surface = pygame.Surface((length_winning_panel,height_winning_panel))
+        surface.fill((170,170,170))
+
+        surface.blit(text_surface,pygame.Rect(10,0,length_winning_panel,height_winning_panel))
+        surface.blit(image_white,(pos_white_queen_ox,pos_queens_oy))
+        surface.blit(image_black,(pos_black_queen_ox,pos_queens_oy))
+
+        self.screen.blit(surface,(left_right_padding,up_down_padding))
+
+        pygame.display.update()
+        
+        locked = True
+        while locked:
+             for event_second in pygame.event.get():
+                    if event_second.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                    if event_second.type == pygame.MOUSEBUTTONDOWN:
+                            pos_x,pos_y = event_second.pos
+                            print(pos_x,pos_y)
+                            white_square_top_left = (pos_white_queen_ox + left_right_padding,up_down_padding + pos_queens_oy)
+                            white_square_bottom_right = (pos_white_queen_ox + left_right_padding + queen_length,up_down_padding + pos_queens_oy + queen_height)
+
+                            if  white_square_bottom_right[0]>=pos_x>=white_square_top_left[0] and  white_square_bottom_right[1] >= pos_y >=  white_square_top_left[1]:
+                                locked = False
+                                print("White queen hit!!")
+                                self.color_player = "w"
+
+                            black_square_top_left = (white_square_top_left[0] + queen_length + space_between,white_square_top_left[1])
+                            black_square_bottom_right = (black_square_top_left[0] + queen_length,white_square_bottom_right[1])
+
+                            if black_square_bottom_right[0]>= pos_x >= black_square_top_left[0] and black_square_bottom_right[1] >= pos_y >= black_square_top_left[1]:
+                                locked = False
+                                print("Black queen hit!!")
+                                self.color_player = "b"
+
     def finish_game_handler(self): # This function will say who won, and after a click will close the program
         # let's make the table
         alpha_factor = 0.8
@@ -109,7 +171,6 @@ class GUIChessGame:
         self.screen.blit(surface,pygame.Rect(left_right_padding,up_down_padding,length_winning_panel,height_winning_panel))
         self.screen.blit(image,(self.l_pixels /2 - length_winning_panel//6,height_winning_panel//3))
         pygame.display.update()
-
         while True:
              for event_second in pygame.event.get():
                     if event_second.type == pygame.QUIT:
