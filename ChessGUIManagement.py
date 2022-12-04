@@ -22,7 +22,7 @@ class GUIChessGame:
         pygame.display.set_caption('Chess Game')
         self.clock = pygame.time.Clock()
 
-    def get_type(self):
+    def get_type(self): # gets the type of game that we want to play
         print('Getting game type')
         assert len(argv) == 2 and argv[1] in ["human","bot"]
         self.type_of_game = argv[1]
