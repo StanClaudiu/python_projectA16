@@ -36,15 +36,37 @@ class GUIChessGame:
     def start_game_bot(self): # start the game against a bot
         print('Against a bot')
         self.handle_get_wanted_color()
+        first_time = True
+        while True:
+            if not first_time : # first time just make the table
+                locked = True
+                check_mate_flag = self.table.check_mate_function() # calculate once for a move
+                if check_mate_flag:
+                        self.finish_game_handler()
+                while locked :  
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            self.handle_click(event)
+                            locked = False
+            
+            self.draw_table()
+            self.draw_pieces()
+            print("Ajung sa redesenez")
+            pygame.display.update()
+            first_time = False
 
     def start_game_human(self): # starts the game, it firstly paints the board and after waits for instr from players
         first_time = True
         while True:
-            if not first_time :
+            if not first_time : # first time just make the table
                 locked = True
-                while locked : 
-                    if self.table.check_mate_flag or  self.table.check_mate_function():
+                check_mate_flag = self.table.check_mate_function() # calculate once for a move
+                if check_mate_flag:
                         self.finish_game_handler()
+                while locked : 
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
