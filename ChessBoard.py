@@ -1,3 +1,5 @@
+import random
+import time
 class backgroundBoard:
     def __init__(self):
         # pretty self explanatory I believe
@@ -122,7 +124,7 @@ class backgroundBoard:
                         return True # we are in check
         return False
 
-    def check_good_positions(self,f_pos_tuple): # verify the good position in a given state
+    def check_good_positions(self,f_pos_tuple): # verify the good position in a given state, does not modify self.possible_states
         f_line,f_col = f_pos_tuple
         temporary_game = self.make_copy()
         temporary_game.search_for_possible_moves_zero_check(f_pos_tuple)
@@ -401,13 +403,13 @@ class backgroundBoard:
                             self.possible_current_moves.append(move_change_piece)
                             self.special_moves_list.append((move_change_piece,"CHANGE"))
                             print("We may change this piece")
-                        if self.board[7][click_col - 1] in enemy_pieces:
+                        if click_col > 0 and self.board[7][click_col - 1] in enemy_pieces:
                             possible_special_moves = True
                             move_change_piece = (7,click_col -1 )
                             self.possible_current_moves.append(move_change_piece)
                             self.special_moves_list.append((move_change_piece,"CHANGE"))
                             print("We may change this piece")
-                        if self.board[7][click_col + 1] in enemy_pieces:
+                        if click_col < 7 and self.board[7][click_col + 1] in enemy_pieces:
                             possible_special_moves = True
                             move_change_piece = (7,click_col + 1 )
                             self.possible_current_moves.append(move_change_piece)
@@ -440,13 +442,13 @@ class backgroundBoard:
                             self.possible_current_moves.append(move_change_piece)
                             self.special_moves_list.append((move_change_piece,"CHANGE"))
                             print("We may change this piece")
-                        if self.board[0][click_col - 1] in enemy_pieces:
+                        if click_col > 0 and self.board[0][click_col - 1] in enemy_pieces:
                             possible_special_moves = True
                             move_change_piece = (0,click_col -1 )
                             self.possible_current_moves.append(move_change_piece)
                             self.special_moves_list.append((move_change_piece,"CHANGE"))
                             print("We may change this piece")
-                        if self.board[0][click_col + 1] in enemy_pieces:
+                        if click_col < 7 and self.board[0][click_col + 1] in enemy_pieces:
                             possible_special_moves = True
                             move_change_piece = (0,click_col + 1 )
                             self.possible_current_moves.append(move_change_piece)
@@ -457,7 +459,7 @@ class backgroundBoard:
         
      # used by search_for_possible_moves_zero_check   all uses self.board
 
-    def make_second_selection(self, f_pos_tuple, s_pos_tuple):  # here we come with the self.possible_moves made only! with good options
+    def make_second_selection(self, f_pos_tuple, s_pos_tuple):  # here we come with the self.possible_moves made only! with good options, the special_moves also need to be formated
         # here we are going to validate the second click if is alright, at the moment returns true
         s_row, s_col = s_pos_tuple
         f_row, f_col = f_pos_tuple
@@ -547,4 +549,33 @@ class backgroundBoard:
                 self.turn = 1 - self.turn
         return made_special_move
  
+    # for the bot
 
+    def get_all_possible_pieces_that_can_move(self): # for the current table returns all the pieces that can be moved
+        pieces_available = []
+        for row in range(0,8):
+           for col in range(0,8):
+               able_to_be_moved = len(self.check_good_positions((row,col))[0])!=0
+               if self.board[row][col] in self.possible_basic_piece[self.turn] and able_to_be_moved:
+                   pieces_available.append((row,col))
+        return pieces_available
+
+    def bot_move_handler(self): # we will be called only when is our turn
+       pieces_able_to_be_moved = self.get_all_possible_pieces_that_can_move()
+       print(pieces_able_to_be_moved)
+       nr_pieces = len(pieces_able_to_be_moved)
+       index_rand = random.randint(0,nr_pieces-1)
+       selected_piece = pieces_able_to_be_moved[index_rand]
+       print(selected_piece)
+       
+       self.search_for_possible_moves_zero_check(selected_piece) # now we update our self.poss and special
+       good_moves,bad_moves = self.check_good_positions(selected_piece)
+       self.possible_current_moves = good_moves
+       
+       nr_poss_moves = len(good_moves)
+       index_rand = random.randint(0,nr_poss_moves-1)
+
+       moved_pos = good_moves[index_rand]
+       waiting_time = random.randint(0,4)
+       time.sleep(waiting_time*0.25)
+       self.make_second_selection(selected_piece,moved_pos)

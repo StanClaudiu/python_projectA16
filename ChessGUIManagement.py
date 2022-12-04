@@ -39,19 +39,22 @@ class GUIChessGame:
         first_time = True
         while True:
             if not first_time : # first time just make the table
-                locked = True
                 check_mate_flag = self.table.check_mate_function() # calculate once for a move
                 if check_mate_flag:
                         self.finish_game_handler()
-                while locked :  
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            pygame.quit()
-                            exit()
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            self.handle_click(event)
-                            locked = False
-            
+                if self.color_player == self.table.turn_color[self.table.turn]: # we manage the player's move
+                    locked = True
+                    while locked :  
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                pygame.quit()
+                                exit()
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                self.handle_click(event)
+                                locked = False
+                else:
+                    print("Bot's turn")
+                    self.table.bot_move_handler()
             self.draw_table()
             self.draw_pieces()
             print("Ajung sa redesenez")
