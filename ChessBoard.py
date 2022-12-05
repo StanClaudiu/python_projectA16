@@ -152,13 +152,51 @@ class backgroundBoard:
        
         for special_move in special_moves:
             #special case king in check
-            if special_move[1] in ["casteling-right","casteling-left"]:
+            if special_move[1] in ["casteling-right","casteling-left"]: # we have a king sit
                 print('Caz special rege, la castelare ')
                 new_game = temporary_game.make_copy()
                 if new_game.simple_check_function(new_game.board,new_game.turn): # regele este in check
                     bad_moves.append(special_move[0])
-                else:
-                    good_special_move.append(special_move[0])
+                    continue
+                else: # init pos for king not in check
+                    move_line,move_column = special_move[0]
+                    #now we go for the when we are in check along the way
+                    if special_move[1] == "casteling-right": # checking right-castelling if we get checked along or checked after
+                        new_game = temporary_game.make_copy()
+                        new_game.board[f_line][f_col] = "--"
+                        new_game.board[move_line][4] = self.turn_color[self.turn] + "K"
+                        if new_game.simple_check_function(new_game.board,self.turn):
+                            bad_moves.append(special_move[0])
+                        else:
+                            print("last check")
+                            new_game = temporary_game.make_copy()
+                            move_line,move_column = special_move[0]
+                            #we make the second move, but special
+                            new_game.special_moves_list = [special_move]
+                            new_game.possible_basic_piece = [(move_line,move_column)]
+                            new_game.make_second_selection(f_pos_tuple,(move_line,move_column))
+                            if new_game.simple_check_function(new_game.board,1 - new_game.turn):
+                                bad_moves.append((move_line,move_column))
+                            else:
+                                good_special_move.append((move_line,move_column))
+                    if special_move[1] == "casteling-left": # cheking left- castelling if we get checked along
+                        new_game = temporary_game.make_copy()
+                        new_game.board[f_line][f_col] = "--"
+                        new_game.board[move_line][2] = self.turn_color[self.turn] + "K"
+                        if new_game.simple_check_function(new_game.board,self.turn):
+                            bad_moves.append(special_move[0])
+                        else:
+                            new_game = temporary_game.make_copy()
+                            move_line,move_column = special_move[0]
+                            #we make the second move, but special
+                            new_game.special_moves_list = [special_move]
+                            new_game.possible_basic_piece = [(move_line,move_column)]
+                            new_game.make_second_selection(f_pos_tuple,(move_line,move_column))
+                            if new_game.simple_check_function(new_game.board,1 - new_game.turn):
+                                bad_moves.append((move_line,move_column))
+                            else:
+                                good_special_move.append((move_line,move_column))
+                    
             else: 
                 new_game = temporary_game.make_copy()
                 move_line,move_column = special_move[0]
