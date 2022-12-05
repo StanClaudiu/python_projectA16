@@ -128,8 +128,13 @@ class backgroundBoard:
         f_line,f_col = f_pos_tuple
         temporary_game = self.make_copy()
         temporary_game.search_for_possible_moves_zero_check(f_pos_tuple)
+
         basic_moves = temporary_game.basic_moves_finder()
         special_moves = temporary_game.special_moves_list.copy()
+
+        special_moves_pos = list(map(lambda x : x[0],special_moves))
+        basic_moves = list(filter(lambda x : x not in special_moves_pos,basic_moves))
+
         good_basic_move =[]
         good_special_move =[]
         bad_moves =[]
