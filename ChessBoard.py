@@ -362,7 +362,8 @@ class backgroundBoard:
                 if not left_castle and not right_castle : # we can't make any casteling
                     return False
                 if left_castle:
-                    if self.board[click_row][click_col - 1] not in self.possible_basic_piece[0] +self.possible_basic_piece[1]: # there's nobody between us
+                    if self.board[click_row][click_col - 1] not in self.possible_basic_piece[0] + self.possible_basic_piece[1] and \
+                       self.board[click_row][click_col - 2] not in self.possible_basic_piece[0] + self.possible_basic_piece[1]: # there's nobody between us
                         king_pos = (click_row,(click_col + 0)//2)
                         self.possible_current_moves.append(king_pos)
                         self.special_moves_list.append((king_pos,"casteling-left"))
