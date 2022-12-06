@@ -623,3 +623,4 @@ class backgroundBoard:
        waiting_time = random.randint(0,4)
        time.sleep(waiting_time*0.25)
        self.make_second_selection(selected_piece,moved_pos)
+       return moved_pos

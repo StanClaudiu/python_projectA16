@@ -9,6 +9,7 @@ class GUIChessGame:
         self.pieces = pieces = ("wC", "wH", "wB", "wK",
                                 "wQ", "wP", "bC", "bH", "bB", "bK", "bQ", "bP")
         pygame.init()  # dam o cheie
+        self.color_player = "None"
         self.l_pixels = l_pixels
         self.h_pixels = h_pixels
         self.l_SQUARE = l_pixels // 8
@@ -54,7 +55,9 @@ class GUIChessGame:
                                 locked = False
                 else:
                     print("Bot's turn")
-                    self.table.bot_move_handler()
+                    moved_pos = self.table.bot_move_handler()
+                    if self.table.change_event_going_on :
+                        self.handle_change_event(moved_pos)
             self.draw_table()
             self.draw_pieces()
             print("Ajung sa redesenez")
@@ -256,45 +259,48 @@ class GUIChessGame:
         print('We have a special change event')
         actual_turn = 1 - self.table.turn
         self.table.change_event_going_on = False # I will manage it right now
-        minimize_rate = 0.8
-        left_padding = 4 *  (1 - minimize_rate) * self.l_SQUARE
-        l_modified_square = 2 * minimize_rate * self.l_SQUARE
-        h_modified_square = 2 * minimize_rate * self.h_SQUARE
-        #show choices in here:
-        piece_choices = []
-        if actual_turn == 1:
-            piece_choices = ['bQ','bH','bB','bC']
-            top_padding = self.h_pixels - self.h_SQUARE * 2 - h_modified_square
-        else:
-            piece_choices = ['wQ','wH','wB','wC']
-            top_padding = self.h_SQUARE * 2 
-        for index,piece_choice in enumerate(piece_choices):
-            image = pygame.transform.scale(self.image_piece[piece_choice],(l_modified_square,h_modified_square))
-            image.fill((255, 255, 255, 126), None, pygame.BLEND_RGBA_MULT)
-            position_image = (left_padding + l_modified_square * index,top_padding)
-            self.screen.blit(image,position_image)
-        pygame.display.update()
-        locked = True
-        print("Entered here")
-        while locked :
-            for event_selection in pygame.event.get():
-                if event_selection.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                if event_selection.type == pygame.MOUSEBUTTONDOWN :
-                    print("We got a click")
-                    #now let's see what he chose
-                    coord_x,coord_y = event_selection.pos
-                    for index,piece_choice in enumerate(piece_choices):
-                        left_limit = left_padding + index * l_modified_square
-                        right_limit = left_limit + l_modified_square
-                        bottom_limit = top_padding + h_modified_square
-                        top_limit = top_padding
-                        if left_limit <= coord_x <= right_limit and top_limit <= coord_y <= bottom_limit:
-                            self.table.board[final_pos[0]][final_pos[1]] = piece_choice
-                            locked = False
-                            break
-                            
+        if self.color_player in [self.table.turn_color[actual_turn],"None"] : # the player is moving right now
+            minimize_rate = 0.8
+            left_padding = 4 *  (1 - minimize_rate) * self.l_SQUARE
+            l_modified_square = 2 * minimize_rate * self.l_SQUARE
+            h_modified_square = 2 * minimize_rate * self.h_SQUARE
+            #show choices in here:
+            piece_choices = []
+            if actual_turn == 1:
+                piece_choices = ['bQ','bH','bB','bC']
+                top_padding = self.h_pixels - self.h_SQUARE * 2 - h_modified_square
+            else:
+                piece_choices = ['wQ','wH','wB','wC']
+                top_padding = self.h_SQUARE * 2 
+            for index,piece_choice in enumerate(piece_choices):
+                image = pygame.transform.scale(self.image_piece[piece_choice],(l_modified_square,h_modified_square))
+                image.fill((255, 255, 255, 126), None, pygame.BLEND_RGBA_MULT)
+                position_image = (left_padding + l_modified_square * index,top_padding)
+                self.screen.blit(image,position_image)
+            pygame.display.update()
+            locked = True
+            print("Entered here")
+            while locked :
+                for event_selection in pygame.event.get():
+                    if event_selection.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                    if event_selection.type == pygame.MOUSEBUTTONDOWN :
+                        print("We got a click")
+                        #now let's see what he chose
+                        coord_x,coord_y = event_selection.pos
+                        for index,piece_choice in enumerate(piece_choices):
+                            left_limit = left_padding + index * l_modified_square
+                            right_limit = left_limit + l_modified_square
+                            bottom_limit = top_padding + h_modified_square
+                            top_limit = top_padding
+                            if left_limit <= coord_x <= right_limit and top_limit <= coord_y <= bottom_limit:
+                                self.table.board[final_pos[0]][final_pos[1]] = piece_choice
+                                locked = False
+                                break
+        else: 
+             self.table.board[final_pos[0]][final_pos[1]] = self.table.turn_color[actual_turn] + "Q" # the bot gets the queen
+
     def get_click_coords(self,event): # get the click coords
         return event.pos[1] // self.l_SQUARE,event.pos[0] // self.h_SQUARE
 
