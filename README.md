@@ -1,7 +1,7 @@
 # python_projectA16
 To run this aplication you will need to do the followings:
 
-1.Verify that you have pygame installed
+1.Verify that you have pygame installed "\n"
 2.Your version of python should be 3.10 or higher
 
 
